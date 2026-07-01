@@ -36,7 +36,7 @@ A centralized, database-driven web application for barangay health centers to ma
     │   ├── index.html            # Homepage + Search
     │   ├── health-logging.html   # Health logging forms
     │   ├── style.css
-    │   ├── app.js
+    │   ├── apps.js
     │   └── forms.js
     ├── backend/
     │   ├── server.js

@@ -39,6 +39,11 @@ A centralized, database-driven web application for barangay health centers to ma
     │   │   └── style.css
     │   ├── js/
     │   │   ├── apps.js
+    │   │   ├── dashboard.js
+    │   │   ├── residents.js
+    │   │   ├── profile.js 
+    │   │   ├── appointments.js
+    │   │   ├── data-store.js
     │   │   └── forms.js
     │   ├── login.html        
     │   ├── dashboard.html  

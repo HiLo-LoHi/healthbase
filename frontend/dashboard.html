@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>HealthBase - Dashboard</title>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <title>HealthBase - Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <!-- SIDEBAR -->
 <div class="sidebar">
   <div class="sidebar-logo">
-    <img src="assets/Logo.png" alt="logo">
+    <img src="assets/logo.png" alt="logo">
     <span>HealthBase</span>
   </div>
   <a href="dashboard.html" class="nav-item active">🏠 Dashboard</a>
@@ -30,149 +30,83 @@
 
 <!-- MAIN -->
 <div class="main-content">
-
   <div class="page-header">
     <h1>Dashboard</h1>
-    <p>Overview of residents, health records, appointments, and requests</p>
+    <p>Overview of your barangay health center</p>
   </div>
 
-  <!-- STATS -->
+  <!-- 4 STAT CARDS -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-icon">👥</div>
-      <div class="stat-number" id="totalResidents">0</div>
+      <div class="stat-number" id="totalResidents">—</div>
       <div class="stat-label">Total Residents</div>
     </div>
 
     <div class="stat-card">
-      <div class="stat-icon">📋</div>
-      <div class="stat-number" id="consultationsToday">0</div>
-      <div class="stat-label">Consultations Today</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon">📅</div>
-      <div class="stat-number" id="pendingAppointments">0</div>
-      <div class="stat-label">Pending Appointments</div>
+      <div class="stat-icon">🏥</div>
+      <div class="stat-number" id="totalCases">—</div>
+      <div class="stat-label">Active Cases</div>
     </div>
 
     <div class="stat-card">
       <div class="stat-icon">💉</div>
-      <div class="stat-number" id="vaccinationRequests">0</div>
-      <div class="stat-label">Vaccination Requests</div>
+      <div class="stat-number" id="vaccinationRate">—</div>
+      <div class="stat-label">Vaccination Coverage</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <div class="stat-number" id="appointmentsToday">—</div>
+      <div class="stat-label">Appointments Today</div>
     </div>
   </div>
 
-  <!-- QUICK ACTIONS -->
+  <!-- RECENT ACTIVITIES -->
   <div class="card">
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <button class="btn-primary" onclick="location.href='health-logging.html'">Log Health Record</button>
-      <button class="btn-secondary" onclick="location.href='residents.html'">Manage Residents</button>
-      <button class="btn-secondary" onclick="location.href='appointments.html'">View Appointments</button>
-    </div>
-  </div>
-
-  <!-- TREND + ALERTS -->
-  <div class="dashboard-row">
-    <div class="card">
-      <div class="page-header">
-        <h1 style="font-size:16px;">Health Activity Trend</h1>
-        <p>Consultations, vaccinations, and medications saved in this browser</p>
-      </div>
-
-      <div class="chart-placeholder" id="activityTrend">
-        Activity trend will update after records are saved.
-      </div>
-    </div>
-
-    <div class="alerts-box">
-      <h4>Health Alerts</h4>
-      <div id="alertsList">
-        <div class="alert-item">No alerts yet.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- APPOINTMENTS + REQUESTS -->
-  <div class="dashboard-row">
-
-    <div class="card">
-      <div class="page-header">
-        <h1 style="font-size:16px;">Upcoming Appointments</h1>
-        <p>Scheduled visits requiring attention</p>
-      </div>
-
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Resident</th>
-            <th>Purpose</th>
-            <th>Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="upcomingAppointmentsBody">
-          <tr>
-            <td colspan="4" style="text-align:center;color:#aaa;padding:30px;">
-              No appointments yet.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card">
-      <div class="page-header">
-        <h1 style="font-size:16px;">Vaccination Drive Requests</h1>
-        <p>Requests waiting for review</p>
-      </div>
-
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Request</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="driveRequestsBody">
-          <tr>
-            <td colspan="2" style="text-align:center;color:#aaa;padding:30px;">
-              No requests yet.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-  </div>
-
-  <!-- RECENT HEALTH LOGS -->
-  <div class="card">
-    <div class="page-header">
-      <h1 style="font-size:16px;">Recent Health Logs</h1>
-      <p>Latest consultations, vaccinations, and medications</p>
-    </div>
+    <h3 style="font-size:15px; color:var(--navy); margin-bottom:14px;">
+      Recent Activities
+    </h3>
 
     <table class="data-table">
       <thead>
         <tr>
           <th>Resident</th>
-          <th>Record Type</th>
+          <th>Activity</th>
           <th>Details</th>
           <th>Date</th>
           <th>Health Worker</th>
         </tr>
       </thead>
-      <tbody id="recentLogsBody">
+      <tbody id="recentActivitiesBody">
         <tr>
-          <td colspan="5" style="text-align:center;color:#aaa;padding:30px;">
-            No health logs yet.
+          <td colspan="5" style="text-align:center; color:#aaa; padding:30px;">
+            No recent activities yet.
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
+  <!-- HEALTH TRENDS + ALERTS -->
+  <div class="dashboard-row">
+    <div class="card">
+      <h3 style="font-size:15px; color:var(--navy); margin-bottom:12px;">
+        Health Trends
+      </h3>
+
+      <div class="chart-placeholder" id="healthTrendsChart">
+        No health trend data yet.
+      </div>
+    </div>
+
+    <div class="alerts-box">
+      <h4>Alerts & Reminders</h4>
+      <div id="alertsList">
+        <div class="alert-item">No alerts or reminders yet.</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="js/apps.js"></script>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HealthBase - Dashboard</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <img src="assets/Logo.png" alt="logo">
+    <span>HealthBase</span>
+  </div>
+  <a href="dashboard.html" class="nav-item active">🏠 Dashboard</a>
+  <a href="residents.html" class="nav-item">👥 Residents</a>
+  <a href="health-logging.html" class="nav-item">📋 Health Logging</a>
+  <a href="appointments.html" class="nav-item">📅 Appointments</a>
+  <a href="appointments.html#requests" class="nav-item">📨 Requests</a>
+  <a href="#" class="nav-item">📊 Reports</a>
+  <a href="#" class="nav-item">⚙️ Settings</a>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <span>Barangay Health System</span>
+  <span>🔔 &nbsp; 👤 <span id="topbarName">Health Worker</span></span>
+</div>
+
+<!-- MAIN -->
+<div class="main-content">
+
+  <div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Overview of residents, health records, appointments, and requests</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-number" id="totalResidents">0</div>
+      <div class="stat-label">Total Residents</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📋</div>
+      <div class="stat-number" id="consultationsToday">0</div>
+      <div class="stat-label">Consultations Today</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <div class="stat-number" id="pendingAppointments">0</div>
+      <div class="stat-label">Pending Appointments</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">💉</div>
+      <div class="stat-number" id="vaccinationRequests">0</div>
+      <div class="stat-label">Vaccination Requests</div>
+    </div>
+  </div>
+
+  <!-- QUICK ACTIONS -->
+  <div class="card">
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn-primary" onclick="location.href='health-logging.html'">Log Health Record</button>
+      <button class="btn-secondary" onclick="location.href='residents.html'">Manage Residents</button>
+      <button class="btn-secondary" onclick="location.href='appointments.html'">View Appointments</button>
+    </div>
+  </div>
+
+  <!-- TREND + ALERTS -->
+  <div class="dashboard-row">
+    <div class="card">
+      <div class="page-header">
+        <h1 style="font-size:16px;">Health Activity Trend</h1>
+        <p>Consultations, vaccinations, and medications saved in this browser</p>
+      </div>
+
+      <div class="chart-placeholder" id="activityTrend">
+        Activity trend will update after records are saved.
+      </div>
+    </div>
+
+    <div class="alerts-box">
+      <h4>Health Alerts</h4>
+      <div id="alertsList">
+        <div class="alert-item">No alerts yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPOINTMENTS + REQUESTS -->
+  <div class="dashboard-row">
+
+    <div class="card">
+      <div class="page-header">
+        <h1 style="font-size:16px;">Upcoming Appointments</h1>
+        <p>Scheduled visits requiring attention</p>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Resident</th>
+            <th>Purpose</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="upcomingAppointmentsBody">
+          <tr>
+            <td colspan="4" style="text-align:center;color:#aaa;padding:30px;">
+              No appointments yet.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="page-header">
+        <h1 style="font-size:16px;">Vaccination Drive Requests</h1>
+        <p>Requests waiting for review</p>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Request</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="driveRequestsBody">
+          <tr>
+            <td colspan="2" style="text-align:center;color:#aaa;padding:30px;">
+              No requests yet.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- RECENT HEALTH LOGS -->
+  <div class="card">
+    <div class="page-header">
+      <h1 style="font-size:16px;">Recent Health Logs</h1>
+      <p>Latest consultations, vaccinations, and medications</p>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Resident</th>
+          <th>Record Type</th>
+          <th>Details</th>
+          <th>Date</th>
+          <th>Health Worker</th>
+        </tr>
+      </thead>
+      <tbody id="recentLogsBody">
+        <tr>
+          <td colspan="5" style="text-align:center;color:#aaa;padding:30px;">
+            No health logs yet.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script src="js/apps.js"></script>
+<script src="js/data-store.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

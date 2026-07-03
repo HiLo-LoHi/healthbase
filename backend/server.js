@@ -27,3 +27,7 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
+app.use('/api/consultations', require('./routes/consultationRoutes'));
+app.use('/api/vaccinations',  require('./routes/vaccinationRoutes'));
+app.use('/api/medications',   require('./routes/medicationRoutes'));

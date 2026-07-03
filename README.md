@@ -40,8 +40,8 @@ A centralized, database-driven web application for barangay health centers to ma
     │   ├── js/
     │   │   ├── apps.js
     │   │   └── forms.js
-        ├── health-logging.html
-        └── ???.html
+    │   ├── health-logging.html
+    │   └── ???.html
     ├── backend/
     │   ├── server.js
     │   ├── .env                  

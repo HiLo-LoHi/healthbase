@@ -33,14 +33,22 @@ A centralized, database-driven web application for barangay health centers to ma
 
     healthbase/
     ├── frontend/
-    │   ├── index.html            # Homepage + Search
-    │   ├── health-logging.html   # Health logging forms
-    │   ├── style.css
-    │   ├── apps.js
-    │   └── forms.js
+    │   ├── css/
+    │   │   └── style.css
+    │   ├── js/
+    │   │   ├── apps.js
+    │   │   └── forms.js
+    │   ├── html/
+    │   │   ├── health-logging.html
+    │   │   └── ???.html
+    │   └── assets/
+    │       └── logo.png
     ├── backend/
     │   ├── server.js
-    │   ├── .env                  # Not pushed to GitHub
+    │   ├── .env                  
+    │   ├── .gitignore
+    │   ├── package-lock.json             
+    │   ├── package.json                
     │   ├── models/
     │   │   ├── Resident.js
     │   │   ├── Consultation.js

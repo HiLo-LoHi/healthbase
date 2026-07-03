@@ -33,16 +33,15 @@ A centralized, database-driven web application for barangay health centers to ma
 
     healthbase/
     ├── frontend/
+    │   └── assets/
+    │   │   └── logo.png
     │   ├── css/
     │   │   └── style.css
     │   ├── js/
     │   │   ├── apps.js
     │   │   └── forms.js
-    │   ├── html/
-    │   │   ├── health-logging.html
-    │   │   └── ???.html
-    │   └── assets/
-    │       └── logo.png
+        ├── health-logging.html
+        └── ???.html
     ├── backend/
     │   ├── server.js
     │   ├── .env                  

@@ -411,3 +411,173 @@ body {
   .profile-grid { grid-template-columns: 1fr; }
   .dashboard-row { grid-template-columns: 1fr; }
 }
+
+
+
+/*REFINEMENTS*/
+/* ---- HEALTHCARE VISUAL REFINEMENTS ---- */
+:root {
+  --blue-light: #f3f8fb;
+  --teal: #0f9f9a;
+  --teal-light: #e6f7f6;
+  --border: #dbe6ec;
+}
+
+/* Softer clinical background */
+body {
+  background: var(--blue-light);
+}
+
+/* Cleaner cards */
+.card,
+.stat-card,
+.resident-card,
+.profile-header {
+  box-shadow: 0 6px 18px rgba(2, 38, 76, 0.06);
+}
+
+/* Medical-style stat icons */
+.stat-card .stat-icon {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background: var(--teal-light);
+  color: var(--teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+/* More polished active sidebar link */
+.nav-item.active {
+  background: linear-gradient(90deg, var(--green), var(--teal));
+  color: white;
+  border-left: 4px solid var(--green-light);
+}
+
+/* Better hover without changing layout */
+.nav-item:hover {
+  background: rgba(26, 116, 48, 0.85);
+  color: white;
+}
+
+/* Slightly cleaner topbar */
+.topbar {
+  box-shadow: 0 2px 10px rgba(2, 38, 76, 0.05);
+}
+
+/* Softer page headers */
+.page-header h1 {
+  letter-spacing: 0;
+}
+
+.page-header p {
+  color: #637887;
+}
+
+/* Better form/search controls */
+.search-input,
+.filter-select,
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border-color: #d7e3ea;
+}
+
+.search-input:focus,
+.filter-select:focus,
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(15, 159, 154, 0.12);
+}
+
+/* Cleaner buttons */
+.btn-primary {
+  background: var(--green);
+  box-shadow: 0 4px 12px rgba(26, 116, 48, 0.18);
+}
+
+.btn-primary:hover {
+  background: #155f2a;
+}
+
+.btn-secondary:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* Healthcare-style badges */
+.badge {
+  border-radius: 999px;
+  letter-spacing: 0.2px;
+}
+
+.badge-green {
+  background: #e7f6ed;
+  color: #176b34;
+}
+
+.badge-yellow {
+  background: #fff7db;
+  color: #9a6a00;
+}
+
+.badge-red {
+  background: #fde8e8;
+  color: #b42318;
+}
+
+.badge-gray {
+  background: #eef3f6;
+  color: #5d6f7a;
+}
+
+/* Resident cards feel more interactive */
+.resident-card {
+  border-color: #dbe6ec;
+}
+
+.resident-card:hover {
+  border-color: var(--teal);
+  transform: translateY(-1px);
+}
+
+/* Clinical avatar chip */
+.resident-card .avatar,
+.profile-avatar {
+  background: var(--teal-light);
+  color: var(--teal);
+}
+
+/* Data table refinement */
+.data-table {
+  box-shadow: 0 6px 18px rgba(2, 38, 76, 0.04);
+}
+
+.data-table th {
+  background: #03315f;
+}
+
+.data-table tr:hover td {
+  background: #f4faf9;
+}
+
+/* Alerts remain visible but softer */
+.alerts-box {
+  background: #fff9e8;
+  border-color: #f4d77b;
+}
+
+.alerts-box h4 {
+  color: #9a6a00;
+}
+
+/* Pagination disabled button state */
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

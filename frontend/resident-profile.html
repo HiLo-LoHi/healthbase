@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HealthBase - Resident Profile</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div>
+    <div class="sidebar-logo">
+      <img src="assets/logo.png" alt="logo">
+      <span>HealthBase</span>
+    </div>
+
+    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
+    <a href="residents.html" class="nav-item">👥 Residents</a>
+    <a href="health-logging.html" class="nav-item">📋 Health Logging</a>
+    <a href="appointments.html" class="nav-item">📅 Appointments</a>
+    <a href="appointments.html#requests" class="nav-item">📨 Requests</a>
+    <a href="reports.html" class="nav-item">📊 Reports</a>
+    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+  </div>
+
+  <button class="nav-item logout-link" onclick="logout()">
+    🚪 Logout
+  </button>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <span>Barangay Health System</span>
+
+  <span>
+    <button class="topbar-btn" onclick="openNotifications()">🔔</button>
+    &nbsp;
+    <button class="topbar-btn" onclick="openAccountMenu()">
+      👤 <span id="topbarName">Health Worker</span>
+    </button>
+  </span>
+</div>
+
+<!-- MAIN -->
+<div class="main-content">
+
+  <a href="residents.html"
+    style="font-size:13px; color:var(--green); display:inline-block; margin-bottom:16px;">
+    ← Back to Residents
+  </a>
+
+  <div class="profile-header">
+    <div class="profile-avatar">👤</div>
+
+    <div class="profile-info" style="flex:1;">
+      <h2 id="pName">Loading...</h2>
+      <p id="pMeta"></p>
+      <p id="pContact" style="margin-top:6px;"></p>
+      <p id="pAddress"></p>
+      <p id="pBlood"></p>
+    </div>
+
+    <button class="btn-secondary" onclick="editResident()">Edit</button>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="showProfileTab('overview', this)">Overview</div>
+    <div class="tab" onclick="showProfileTab('consultations', this)">Consultations</div>
+    <div class="tab" onclick="showProfileTab('vaccinations', this)">Vaccinations</div>
+    <div class="tab" onclick="showProfileTab('medications', this)">Medications</div>
+    <div class="tab" onclick="showProfileTab('files', this)">Files</div>
+  </div>
+
+  <div id="prof-overview" class="profile-grid">
+
+    <div class="card">
+      <h4 style="font-size:13px; font-weight:700; color:var(--navy); margin-bottom:10px;">
+        Personal Information
+      </h4>
+
+      <table style="width:100%; font-size:13px;">
+        <tr>
+          <td style="color:var(--gray);width:140px;padding:4px 0;">Civil Status</td>
+          <td id="pCivil">—</td>
+        </tr>
+        <tr>
+          <td style="color:var(--gray);padding:4px 0;">Occupation</td>
+          <td id="pOccupation">—</td>
+        </tr>
+        <tr>
+          <td style="color:var(--gray);padding:4px 0;">Health No.</td>
+          <td id="pHealthId">—</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h4 style="font-size:13px; font-weight:700; color:var(--navy); margin-bottom:10px;">
+        Medical Summary
+      </h4>
+
+      <table style="width:100%; font-size:13px;">
+        <tr>
+          <td style="color:var(--gray);width:140px;padding:4px 0;">Allergies</td>
+          <td id="pAllergies">None</td>
+        </tr>
+        <tr>
+          <td style="color:var(--gray);padding:4px 0;">Conditions</td>
+          <td id="pConditions">None</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h4 style="font-size:13px; font-weight:700; color:var(--navy); margin-bottom:10px;">
+        Recent Consultations
+      </h4>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Complaint</th>
+            <th>Health Worker</th>
+          </tr>
+        </thead>
+        <tbody id="recentConsult">
+          <tr>
+            <td colspan="3" style="text-align:center;color:#aaa;padding:20px;">
+              Loading...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h4 style="font-size:13px; font-weight:700; color:var(--navy); margin-bottom:10px;">
+        Recent Vaccinations
+      </h4>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Vaccine</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="recentVax">
+          <tr>
+            <td colspan="2" style="text-align:center;color:#aaa;padding:20px;">
+              Loading...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div id="prof-consultations" style="display:none;">
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Complaint</th>
+            <th>Diagnosis</th>
+            <th>Worker</th>
+          </tr>
+        </thead>
+        <tbody id="allConsult"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="prof-vaccinations" style="display:none;">
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Vaccine</th>
+            <th>Dose No.</th>
+            <th>Date Administered</th>
+          </tr>
+        </thead>
+        <tbody id="allVax"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="prof-medications" style="display:none;">
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Medication</th>
+            <th>Dosage</th>
+            <th>Prescribed</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody id="allMeds"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="prof-files" style="display:none;">
+    <div class="card">
+      <p style="color:var(--gray); text-align:center; padding:30px;">
+        No files uploaded yet.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/apps.js"></script>
+<script src="js/data-store.js"></script>
+<script src="js/resident-profile.js"></script>
+</body>
+</html>

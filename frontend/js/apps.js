@@ -41,3 +41,23 @@ if (savedName && document.getElementById('topbarName')) {
 
 // Load residents on residents.html
 if (document.getElementById('residentList')) loadResidents('');
+
+
+function logout() {
+  localStorage.removeItem('healthbase_current_user');
+  localStorage.removeItem('role');
+  localStorage.removeItem('name');
+
+  location.href = 'login.html';
+}
+
+function openNotifications() {
+  alert('Notifications and reminders will be available soon.');
+}
+
+function openAccountMenu() {
+  const name = localStorage.getItem('name') || 'Health Worker';
+  const role = localStorage.getItem('role') || 'admin';
+
+  alert(`Signed in as ${name} (${role})`);
+}

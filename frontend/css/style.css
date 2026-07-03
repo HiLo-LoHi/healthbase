@@ -581,3 +581,29 @@ button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+.sidebar {
+  justify-content: space-between;
+}
+
+.logout-link {
+  width: 100%;
+  border: none;
+  text-align: left;
+  background: transparent;
+  margin-top: auto;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.topbar-btn {
+  border: none;
+  background: transparent;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.topbar-btn:hover {
+  color: var(--green);
+}

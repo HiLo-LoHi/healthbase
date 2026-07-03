@@ -51,6 +51,12 @@ A centralized, database-driven web application for barangay health centers to ma
     │   │   └── UserAccount.js
     │   └── routes/
     │       └── residentRoutes.js
+    │       └── appointmentRoutes.js
+    │       └── authRoutes.js
+    │       └── consultationRoutes.js
+    │       └── medicationRoutes.js
+    │       └── vaccinationDriveRoutes.js
+    │       └── vaccinationRoutes.js
     └── README.md
 
 

@@ -99,7 +99,7 @@ A centralized, database-driven web application for barangay health centers to ma
 
 ## 🌐 Live App
 
-- **Backend API:** [[https://healthbase-api.onrender.com](https://healthbase.onrender.com/)](https://healthbase.onrender.com)
+- **Backend API:** https://healthbase.onrender.com
 - **Frontend:** (add Vercel link here when deployed)
 
 ------------------------------------------------------------------------------------------------------------

@@ -6,7 +6,7 @@ complaint: String,
 diagnosis: String,
 temperature: String,
 bloodPressure: String,
-heartrate: String,
+heartRate: String,
 notes: String,
 userId: {type: mongoose.Schema.Types.ObjectId, ref: 'UserAccount'}
 }, { timestamps: true });

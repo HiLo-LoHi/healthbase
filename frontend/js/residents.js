@@ -3,47 +3,65 @@ const residentsPerPage = 5;
 let currentFilteredResidents = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-  searchResidents();
+  loadResidents('');
 });
 
-function searchResidents() {
-  if (typeof getRecords !== 'function') {
-    renderResidentMessage('Unable to load residents. Please make sure data-store.js is loaded.');
+async function loadResidents(name = '') {
+  const token = localStorage.getItem('token');
+  const query = name ? '?name=' + encodeURIComponent(name) : '';
+  const headers = token ? { Authorization: 'Bearer ' + token } : {};
+
+  renderResidentMessage('Loading residents...');
+
+  try {
+    const res = await fetch(API + '/api/residents' + query, { headers });
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Unable to load residents.');
+    }
+
+    currentFilteredResidents = applyResidentFilters(Array.isArray(data) ? data : []);
+    sortResidentResults(currentFilteredResidents, document.getElementById('sortResidents').value);
+
+    currentPage = 1;
+    updateResultCount(currentFilteredResidents.length);
+    renderCurrentPage();
+  } catch (err) {
+    console.error('loadResidents error:', err);
+    currentFilteredResidents = [];
     updateResultCount(0);
     updatePagination(0);
-    return;
+    renderResidentMessage('Cannot load residents from server. Try again.');
   }
+}
 
-  const searchValue = document.getElementById('searchInput').value.trim().toLowerCase();
+function applyResidentFilters(residents) {
   const ageFilter = document.getElementById('filterAge').value;
   const conditionFilter = document.getElementById('filterCondition').value;
   const vaxFilter = document.getElementById('filterVax').value;
-  const sortValue = document.getElementById('sortResidents').value;
 
-  const residents = getRecords('residents');
-  const consultations = getRecords('consultations');
-  const vaccinations = getRecords('vaccinations');
-
-  currentFilteredResidents = residents.filter(resident => {
-    const fullName = getResidentName(resident);
+  return residents.filter(resident => {
     const age = getAge(resident.birthdate);
-    const vaccinated = isResidentVaccinated(fullName, vaccinations);
+    const condition = getResidentCondition(resident);
+    const vaccinated = isResidentVaccinated(resident);
 
-    const matchesName = fullName.toLowerCase().includes(searchValue);
     const matchesAge = !ageFilter || ageMatchesFilter(age, ageFilter);
     const matchesCondition =
-      !conditionFilter || residentHasCondition(fullName, conditionFilter, consultations);
+      !conditionFilter || condition.toLowerCase().includes(conditionFilter.toLowerCase());
     const matchesVaccination =
       !vaxFilter || String(vaccinated) === vaxFilter;
 
-    return matchesName && matchesAge && matchesCondition && matchesVaccination;
+    return matchesAge && matchesCondition && matchesVaccination;
   });
+}
 
-  sortResidentResults(currentFilteredResidents, sortValue);
+function displayResidents(residents) {
+  renderResidents(residents);
+}
 
-  currentPage = 1;
-  updateResultCount(currentFilteredResidents.length);
-  renderCurrentPage();
+function searchResidents() {
+  loadResidents(document.getElementById('searchInput').value.trim());
 }
 
 function resetFilters() {
@@ -53,7 +71,7 @@ function resetFilters() {
   document.getElementById('filterVax').value = '';
   document.getElementById('sortResidents').value = 'name-asc';
 
-  searchResidents();
+  loadResidents('');
 }
 
 function changePage(direction) {
@@ -67,18 +85,15 @@ function changePage(direction) {
 }
 
 function renderCurrentPage() {
-  const consultations = getRecords('consultations');
-  const vaccinations = getRecords('vaccinations');
-
   const start = (currentPage - 1) * residentsPerPage;
   const end = start + residentsPerPage;
   const pageResidents = currentFilteredResidents.slice(start, end);
 
-  renderResidents(pageResidents, consultations, vaccinations);
+  displayResidents(pageResidents);
   updatePagination(currentFilteredResidents.length);
 }
 
-function renderResidents(residents, consultations, vaccinations) {
+function renderResidents(residents) {
   if (residents.length === 0) {
     renderResidentMessage('No resident records found.');
     return;
@@ -87,31 +102,30 @@ function renderResidents(residents, consultations, vaccinations) {
   const list = document.getElementById('residentList');
 
   list.innerHTML = residents.map(resident => {
+    const id = resident._id || resident.id;
     const fullName = getResidentName(resident);
     const age = getAge(resident.birthdate);
-    const vaccinated = isResidentVaccinated(fullName, vaccinations);
-    const condition = getLatestCondition(fullName, consultations);
+    const condition = getResidentCondition(resident) || 'No condition recorded';
+    const vaccinated = isResidentVaccinated(resident);
 
     return `
-      <div class="resident-card" onclick="openResidentProfile('${resident.id}')">
-        <div class="avatar">👤</div>
+      <div class="resident-card" onclick="openResidentProfile('${escapeJsValue(id)}')">
+        <div class="avatar">&#128100;</div>
 
         <div class="rinfo">
           <h4>${escapeHtml(fullName)}</h4>
           <p>
+            ${escapeHtml(resident.sex || 'Sex not set')}
+            &bull;
             ${age !== null ? age + ' years old' : 'Age not set'}
-            ${resident.sex ? ' • ' + escapeHtml(resident.sex) : ''}
-            ${resident.address ? ' • ' + escapeHtml(resident.address) : ''}
+            &bull;
+            ${escapeHtml(resident.address || 'Address not set')}
           </p>
           <p>
             <span class="badge ${vaccinated ? 'badge-green' : 'badge-gray'}">
               ${vaccinated ? 'Vaccinated' : 'Not Vaccinated'}
             </span>
-            ${
-              condition
-                ? `<span class="badge badge-yellow">${escapeHtml(condition)}</span>`
-                : ''
-            }
+            <span class="badge badge-yellow">${escapeHtml(condition)}</span>
           </p>
         </div>
       </div>
@@ -126,17 +140,9 @@ function sortResidentResults(residents, sortValue) {
     const ageA = getAge(a.birthdate);
     const ageB = getAge(b.birthdate);
 
-    if (sortValue === 'name-desc') {
-      return nameB.localeCompare(nameA);
-    }
-
-    if (sortValue === 'age-asc') {
-      return safeAge(ageA) - safeAge(ageB);
-    }
-
-    if (sortValue === 'age-desc') {
-      return safeAge(ageB) - safeAge(ageA);
-    }
+    if (sortValue === 'name-desc') return nameB.localeCompare(nameA);
+    if (sortValue === 'age-asc') return safeAge(ageA) - safeAge(ageB);
+    if (sortValue === 'age-desc') return safeAge(ageB) - safeAge(ageA);
 
     return nameA.localeCompare(nameB);
   });
@@ -147,28 +153,22 @@ function safeAge(age) {
 }
 
 function updateResultCount(total) {
-  const resultCount = document.getElementById('resultCount');
-
-  resultCount.innerText = `${total} resident${total === 1 ? '' : 's'} found`;
+  document.getElementById('resultCount').innerText =
+    `${total} resident${total === 1 ? '' : 's'} found`;
 }
 
 function updatePagination(totalResidents) {
   const paginationBar = document.getElementById('paginationBar');
   const totalPages = Math.ceil(totalResidents / residentsPerPage) || 1;
-  const pageInfo = document.getElementById('pageInfo');
-  const prevBtn = document.getElementById('prevPageBtn');
-  const nextBtn = document.getElementById('nextPageBtn');
 
   paginationBar.style.display = totalResidents === 0 ? 'none' : 'flex';
-  pageInfo.innerText = `Page ${currentPage} of ${totalPages}`;
-  prevBtn.disabled = currentPage <= 1;
-  nextBtn.disabled = currentPage >= totalPages;
+  document.getElementById('pageInfo').innerText = `Page ${currentPage} of ${totalPages}`;
+  document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+  document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
 }
 
 function renderResidentMessage(message) {
-  const list = document.getElementById('residentList');
-
-  list.innerHTML = `
+  document.getElementById('residentList').innerHTML = `
     <p style="text-align:center; color:#aaa; padding:40px;">
       ${escapeHtml(message)}
     </p>
@@ -180,8 +180,6 @@ function openResidentProfile(id) {
 }
 
 function getResidentName(resident) {
-  if (resident.fullName) return resident.fullName;
-
   return `${resident.firstName || ''} ${resident.lastName || ''}`.trim() || 'Unnamed Resident';
 }
 
@@ -212,34 +210,16 @@ function ageMatchesFilter(age, filter) {
   return true;
 }
 
-function isResidentVaccinated(fullName, vaccinations) {
-  return vaccinations.some(item =>
-    item.resident &&
-    item.resident.toLowerCase() === fullName.toLowerCase()
-  );
+function getResidentCondition(resident) {
+  return resident.condition || '';
 }
 
-function residentHasCondition(fullName, condition, consultations) {
-  return consultations.some(item =>
-    item.resident &&
-    item.resident.toLowerCase() === fullName.toLowerCase() &&
-    (
-      item.diagnosis?.toLowerCase().includes(condition.toLowerCase()) ||
-      item.complaint?.toLowerCase().includes(condition.toLowerCase()) ||
-      item.notes?.toLowerCase().includes(condition.toLowerCase())
-    )
-  );
+function isResidentVaccinated(resident) {
+  return resident.vaccinated === true || String(resident.vaccinated).toLowerCase() === 'true';
 }
 
-function getLatestCondition(fullName, consultations) {
-  const residentConsultations = consultations
-    .filter(item =>
-      item.resident &&
-      item.resident.toLowerCase() === fullName.toLowerCase()
-    )
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-  return residentConsultations[0]?.diagnosis || '';
+function escapeJsValue(value) {
+  return String(value || '').replaceAll('\\', '\\\\').replaceAll("'", "\\'");
 }
 
 function escapeHtml(value) {

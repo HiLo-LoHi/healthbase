@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-function login() {
+async function login() {
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
   const rememberMe = document.getElementById('rememberMe').checked;
@@ -22,52 +22,36 @@ function login() {
     return;
   }
 
-  const user = authenticateFrontendUser(username, password);
-
-  if (!user) {
-    showLoginError('Invalid username or password.');
-    return;
-  }
-
   if (rememberMe) {
     localStorage.setItem(REMEMBERED_USERNAME_KEY, username);
   } else {
     localStorage.removeItem(REMEMBERED_USERNAME_KEY);
   }
 
-  localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
-  localStorage.setItem('name', user.name);
-  localStorage.setItem('role', user.role);
+  try {
+    const res = await fetch(API + '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
 
-  redirectByRole(user.role, user.residentId);
-}
+    const data = await res.json();
 
-function authenticateFrontendUser(username, password) {
- 
- /*DEMO ACCOUNT ONLY FOR FRONTEND TESTING heheh*/
-    const users = [
-    {
-      username: 'admin',
-      password: 'admin123',
-      role: 'admin',
-      name: 'Health Worker'
-    },
-    {
-      username: 'patient',
-      password: 'patient123',
-      role: 'patient',
-      name: 'Community Resident',
-      residentId: 'demo-patient'
+    if (!res.ok || !data.token) {
+      showLoginError(data.error || 'Login failed.');
+      return;
     }
-  ];
 
-  /*end here*/
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('role', data.role);
+    localStorage.setItem('name', data.name);
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data));
 
-
-  return users.find(user =>
-    user.username === username &&
-    user.password === password
-  );
+    redirectByRole(data.role);
+  } catch (err) {
+    showLoginError('Cannot connect to server. Try again.');
+    console.error(err);
+  }
 }
 
 function redirectByRole(role, residentId) {
@@ -97,4 +81,13 @@ function showLoginError(message) {
 
 function clearLoginError() {
   document.getElementById('loginError').innerText = '';
+}
+
+//to preview password
+function togglePasswordVisibility(button) {
+  const passwordInput = document.getElementById('password');
+  const isHidden = passwordInput.type === 'password';
+
+  passwordInput.type = isHidden ? 'text' : 'password';
+  button.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
 }

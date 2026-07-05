@@ -45,85 +45,171 @@ function getHealthWorkerName(selectId) {
   return selectedWorker || topbarName || 'Health Worker';
 }
 
-// ---- SAVE CONSULTATION ----
-function saveConsultation() {
-  if (!canSaveRecords('consultMsg')) return;
+// ---- (NEW) SAVE CONSULTAION----//
+async function saveConsultation() {
+  const token = localStorage.getItem('token');
+  const residentName = document.getElementById('c-resident').value.trim();
 
   const data = {
-    resident: document.getElementById('c-resident').value.trim(),
-    date: document.getElementById('c-date').value,
+    visitDate: document.getElementById('c-date').value,
     complaint: document.getElementById('c-complaint').value.trim(),
     diagnosis: document.getElementById('c-diagnosis').value.trim(),
     temperature: document.getElementById('c-temp').value.trim(),
     bloodPressure: document.getElementById('c-bp').value.trim(),
     heartRate: document.getElementById('c-hr').value.trim(),
-    worker: getHealthWorkerName('c-worker'),
     notes: document.getElementById('c-notes').value.trim()
   };
 
-  if (!data.resident || !data.date || !data.complaint || !data.diagnosis) {
+  if (!residentName || !data.visitDate || !data.complaint || !data.diagnosis) {
     showMsg('consultMsg', 'Please fill in all required fields.', 'error');
     return;
   }
 
-  addRecord('consultations', data);
-  showMsg('consultMsg', 'Consultation saved.', 'success');
+  try {
+    const resident = await findResidentByName(residentName, token);
+
+    if (!resident) {
+      showMsg('consultMsg', 'Resident not found. Please enter an existing resident name.', 'error');
+      return;
+    }
+
+    const res = await fetch(API + '/api/consultations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token
+      },
+      body: JSON.stringify({
+        residentId: resident._id || resident.id,
+        ...data
+      })
+    });
+
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      showMsg('consultMsg', result.error || 'Error saving consultation.', 'error');
+      return;
+    }
+
+    showMsg('consultMsg', 'Consultation saved successfully.', 'success');
+    clearTab('consultation');
+  } catch (err) {
+    showMsg('consultMsg', 'Cannot connect to server.', 'error');
+    console.error(err);
+  }
 }
 
-// ---- SAVE VACCINATION ----
-function saveVaccination() {
-  if (!canSaveRecords('vacMsg')) return;
+// ---- new save vaccination
+async function saveVaccination() {
+  const token = localStorage.getItem('token');
+  const residentName = document.getElementById('v-resident').value.trim();
 
   const data = {
-    resident: document.getElementById('v-resident').value.trim(),
-    date: document.getElementById('v-date').value,
-    vaccine: document.getElementById('v-vaccine').value.trim(),
-    dose: document.getElementById('v-dose').value.trim(),
-    worker: getHealthWorkerName('topbarName')
+    dateAdministered: document.getElementById('v-date').value,
+    vaccineType: document.getElementById('v-vaccine').value.trim(),
+    doseNumber: document.getElementById('v-dose').value.trim()
   };
 
-  if (!data.resident || !data.date || !data.vaccine) {
+  if (!residentName || !data.dateAdministered || !data.vaccineType) {
     showMsg('vacMsg', 'Please fill in all required fields.', 'error');
     return;
   }
 
-  addRecord('vaccinations', data);
-  showMsg('vacMsg', 'Vaccination saved.', 'success');
+  try {
+    const resident = await findResidentByName(residentName, token);
+
+    if (!resident) {
+      showMsg('vacMsg', 'Resident not found. Please enter an existing resident name.', 'error');
+      return;
+    }
+
+    const res = await fetch(API + '/api/vaccinations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token
+      },
+      body: JSON.stringify({
+        residentId: resident._id || resident.id,
+        ...data
+      })
+    });
+
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      showMsg('vacMsg', result.error || 'Error saving vaccination.', 'error');
+      return;
+    }
+
+    showMsg('vacMsg', 'Vaccination saved successfully.', 'success');
+    clearTab('vaccination');
+  } catch (err) {
+    showMsg('vacMsg', 'Cannot connect to server.', 'error');
+    console.error(err);
+  }
 }
 
 // ---- SAVE MEDICATION ----
-function saveMedication() {
-  if (!canSaveRecords('medMsg')) return;
+async function saveMedication() {
+  const token = localStorage.getItem('token');
+  const residentName = document.getElementById('m-resident').value.trim();
 
   const data = {
-    resident: document.getElementById('m-resident').value.trim(),
-    name: document.getElementById('m-name').value.trim(),
+    medicineName: document.getElementById('m-name').value.trim(),
     dosage: document.getElementById('m-dosage').value.trim(),
-    date: document.getElementById('m-date').value,
-    duration: document.getElementById('m-duration').value.trim(),
-    worker: getHealthWorkerName('topbarName')
+    prescribedDate: document.getElementById('m-date').value,
+    duration: document.getElementById('m-duration').value.trim()
   };
 
-  if (!data.resident || !data.name || !data.dosage || !data.date) {
+  if (!residentName || !data.medicineName || !data.dosage || !data.prescribedDate) {
     showMsg('medMsg', 'Please fill in all required fields.', 'error');
     return;
   }
 
-  addRecord('medications', data);
-  showMsg('medMsg', 'Medication saved.', 'success');
+  try {
+    const resident = await findResidentByName(residentName, token);
+
+    if (!resident) {
+      showMsg('medMsg', 'Resident not found. Please enter an existing resident name.', 'error');
+      return;
+    }
+
+    const res = await fetch(API + '/api/medications', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token
+      },
+      body: JSON.stringify({
+        residentId: resident._id || resident.id,
+        ...data
+      })
+    });
+
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      showMsg('medMsg', result.error || 'Error saving medication.', 'error');
+      return;
+    }
+
+    showMsg('medMsg', 'Medication saved successfully.', 'success');
+    clearTab('medication');
+  } catch (err) {
+    showMsg('medMsg', 'Cannot connect to server.', 'error');
+    console.error(err);
+  }
 }
 
 // ---- SAVE RESIDENT ----
-function saveResident() {
-  if (!canSaveRecords('residentMsg')) return;
-
-  const firstName = document.getElementById('r-firstName').value.trim();
-  const lastName = document.getElementById('r-lastName').value.trim();
+async function saveResident() {
+  const token = localStorage.getItem('token');
 
   const data = {
-    firstName: firstName,
-    lastName: lastName,
-    fullName: `${firstName} ${lastName}`.trim(),
+    firstName: document.getElementById('r-firstName').value.trim(),
+    lastName: document.getElementById('r-lastName').value.trim(),
     birthdate: document.getElementById('r-birthdate').value,
     sex: document.getElementById('r-sex').value,
     address: document.getElementById('r-address').value.trim(),
@@ -137,6 +223,54 @@ function saveResident() {
     return;
   }
 
-  addRecord('residents', data);
-  showMsg('residentMsg', 'Resident saved.', 'success');
+  try {
+    const res = await fetch(API + '/api/residents', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      showMsg('residentMsg', result.error || 'Error saving resident.', 'error');
+      return;
+    }
+
+    showMsg('residentMsg', 'Resident saved successfully.', 'success');
+    clearTab('addResident');
+  } catch (err) {
+    showMsg('residentMsg', 'Cannot connect to server.', 'error');
+    console.error(err);
+  }
+}
+//(NEW) helper funcitonn
+async function findResidentByName(name, token) {
+  const res = await fetch(API + '/api/residents', {
+    headers: { Authorization: 'Bearer ' + token }
+  });
+
+  const residents = await res.json();
+
+  if (!res.ok || !Array.isArray(residents)) {
+    throw new Error('Unable to load residents.');
+  }
+
+  const searchName = normalizeName(name);
+
+  return residents.find(resident =>
+    normalizeName(`${resident.firstName || ''} ${resident.lastName || ''}`) === searchName
+  ) || residents.find(resident =>
+    normalizeName(`${resident.firstName || ''} ${resident.lastName || ''}`).includes(searchName)
+  );
+}
+
+function normalizeName(value) {
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
 }

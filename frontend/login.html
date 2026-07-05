@@ -19,9 +19,20 @@
       <input type="text" id="username" placeholder="Enter username">
     </div>
 
+
+    
     <div class="form-group" style="text-align:left;">
       <label>Password</label>
-      <input type="password" id="password" placeholder="Enter password">
+      
+      <div class="password-field">
+        <input type="password" id="password" placeholder="Enter password">
+        <button type="button" class="password-toggle" onclick="togglePasswordVisibility(this)" aria-label="Show password">
+          <svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5c5 0 9 5 10 7-1 2-5 7-10 7S3 14 2 12c1-2 5-7 10-7z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:20px;">
@@ -46,6 +57,7 @@
   </div>
 </div>
 
+<script src="js/data-store.js"></script>
 <script src="js/auth.js"></script>
 </body>
 </html>

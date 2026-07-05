@@ -2,37 +2,40 @@ document.addEventListener('DOMContentLoaded', loadResidentProfile);
 
 let currentResident = null;
 
-function loadResidentProfile() {
-  if (typeof getRecords !== 'function') {
-    showProfileError('Unable to load profile. Please make sure data-store.js is loaded.');
-    return;
-  }
 
+//resident-profile : connected to API
+async function loadResidentProfile() {
   const residentId = getQueryParam('id');
-  const residents = getRecords('residents');
 
-  currentResident = residents.find(resident =>
-    String(resident.id) === String(residentId)
-  );
-
-  if (!currentResident) {
-    showProfileError('Resident record not found.');
+  if (!residentId) {
+    showProfileError('Resident ID is missing.');
     clearProfileTables();
     return;
   }
 
-  const consultations = getResidentRecords('consultations', currentResident);
-  const vaccinations = getResidentRecords('vaccinations', currentResident);
-  const medications = getResidentRecords('medications', currentResident);
+  try {
+    const [resident, consultations, vaccinations, medications] = await Promise.all([
+      apiGet('/api/residents/' + encodeURIComponent(residentId)),
+      apiGet('/api/consultations?residentId=' + encodeURIComponent(residentId)),
+      apiGet('/api/vaccinations?residentId=' + encodeURIComponent(residentId)),
+      apiGet('/api/medications?residentId=' + encodeURIComponent(residentId))
+    ]);
 
-  renderProfileHeader(currentResident);
-  renderPersonalInfo(currentResident);
-  renderMedicalSummary(currentResident, consultations);
-  renderRecentConsultations(consultations);
-  renderRecentVaccinations(vaccinations);
-  renderAllConsultations(consultations);
-  renderAllVaccinations(vaccinations);
-  renderAllMedications(medications);
+    currentResident = resident;
+
+    renderProfileHeader(currentResident);
+    renderPersonalInfo(currentResident);
+    renderMedicalSummary(currentResident, consultations);
+    renderRecentConsultations(consultations);
+    renderRecentVaccinations(vaccinations);
+    renderAllConsultations(consultations);
+    renderAllVaccinations(vaccinations);
+    renderAllMedications(medications);
+  } catch (err) {
+    console.error('loadResidentProfile error:', err);
+    showProfileError('Unable to load resident profile.');
+    clearProfileTables();
+  }
 }
 
 function renderProfileHeader(resident) {
@@ -85,13 +88,14 @@ function renderRecentConsultations(consultations) {
 
   body.innerHTML = recent.map(item => `
     <tr>
-      <td>${escapeHtml(formatDate(item.date))}</td>
+      <td>${escapeHtml(formatDate(item.visitDate || item.date || item.createdAt))}</td>
       <td>${escapeHtml(item.complaint || '-')}</td>
       <td>${escapeHtml(item.worker || 'Health Worker')}</td>
     </tr>
   `).join('');
 }
 
+//edited
 function renderRecentVaccinations(vaccinations) {
   const body = document.getElementById('recentVax');
   const recent = vaccinations.slice(0, 3);
@@ -103,12 +107,12 @@ function renderRecentVaccinations(vaccinations) {
 
   body.innerHTML = recent.map(item => `
     <tr>
-      <td>${escapeHtml(item.vaccine || '-')}</td>
-      <td>${escapeHtml(formatDate(item.date))}</td>
+      <td>${escapeHtml(item.vaccineType || item.vaccine || '-')}</td>
+<td>${escapeHtml(formatDate(item.dateAdministered || item.date || item.createdAt))}</td>
     </tr>
   `).join('');
 }
-
+//edited 
 function renderAllConsultations(consultations) {
   const body = document.getElementById('allConsult');
 
@@ -118,13 +122,13 @@ function renderAllConsultations(consultations) {
   }
 
   body.innerHTML = consultations.map(item => `
-    <tr>
-      <td>${escapeHtml(formatDate(item.date))}</td>
-      <td>${escapeHtml(item.complaint || '-')}</td>
-      <td>${escapeHtml(item.diagnosis || '-')}</td>
-      <td>${escapeHtml(item.worker || 'Health Worker')}</td>
-    </tr>
-  `).join('');
+  <tr>
+    <td>${escapeHtml(formatDate(item.visitDate || item.date || item.createdAt))}</td>
+    <td>${escapeHtml(item.complaint || '-')}</td>
+    <td>${escapeHtml(item.diagnosis || '-')}</td>
+    <td>${escapeHtml(item.worker || 'Health Worker')}</td>
+  </tr>
+`).join('');
 }
 
 function renderAllVaccinations(vaccinations) {
@@ -137,9 +141,9 @@ function renderAllVaccinations(vaccinations) {
 
   body.innerHTML = vaccinations.map(item => `
     <tr>
-      <td>${escapeHtml(item.vaccine || '-')}</td>
-      <td>${escapeHtml(item.dose || '-')}</td>
-      <td>${escapeHtml(formatDate(item.date))}</td>
+      <td>${escapeHtml(item.vaccineType || item.vaccine || '-')}</td>
+      <td>${escapeHtml(item.doseNumber || item.dose || '-')}</td>
+      <td>${escapeHtml(formatDate(item.dateAdministered || item.date || item.createdAt))}</td>
     </tr>
   `).join('');
 }
@@ -154,29 +158,15 @@ function renderAllMedications(medications) {
 
   body.innerHTML = medications.map(item => `
     <tr>
-      <td>${escapeHtml(item.name || '-')}</td>
+      <td>${escapeHtml(item.medicineName || item.name || '-')}</td>
       <td>${escapeHtml(item.dosage || '-')}</td>
-      <td>${escapeHtml(formatDate(item.date))}</td>
+      <td>${escapeHtml(formatDate(item.prescribedDate || item.date || item.createdAt))}</td>
       <td>${escapeHtml(item.duration || '-')}</td>
     </tr>
   `).join('');
 }
 
-function getResidentRecords(type, resident) {
-  const records = getRecords(type);
-  const fullName = getResidentName(resident).toLowerCase();
-
-  return records
-    .filter(item => {
-      if (item.residentId && resident.id) {
-        return String(item.residentId) === String(resident.id);
-      }
-
-      return item.resident &&
-        item.resident.toLowerCase() === fullName;
-    })
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-}
+//getresidentRecords(): removed...
 
 function showProfileTab(name, clickedTab) {
   ['overview', 'consultations', 'vaccinations', 'medications', 'files'].forEach(tabName => {
@@ -275,4 +265,20 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+}
+//helper function 
+async function apiGet(path) {
+  const token = localStorage.getItem('token');
+
+  const res = await fetch(API + path, {
+    headers: token ? { Authorization: 'Bearer ' + token } : {}
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || 'Request failed.');
+  }
+
+  return data;
 }

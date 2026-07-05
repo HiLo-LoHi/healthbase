@@ -14,7 +14,10 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const appts = await Appointment.find().sort({ date: 1 });
+    const query = req.query.residentId
+      ? { residentId: req.query.residentId }
+      : {};
+    const appts = await Appointment.find(query).sort({ date: 1 });
     res.json(appts);
   } catch (err) {
     res.status(500).json({ error: err.message });

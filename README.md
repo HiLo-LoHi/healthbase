@@ -10,8 +10,8 @@ A centralized, database-driven web application for barangay health centers to ma
 | Name | Role |
 |------|------|
 | Tanteo, Brian | Team Lead · QA Lead · Database Lead · Frontend (Forms) · Researcher |
-| Go, Danielle | Frontend Lead · QA Assistant · Researcher |
-| Castillo, Simon Miguel | Backend Lead · QA Assistant · Researcher |
+| Go, Danielle | Frontend Lead · Researcher |
+| Castillo, Simon Miguel | Backend Lead · Researcher |
 | Estomaguio, Zyvoeix | Backend Dev · Database Assistant · Researcher |
 | Gonzales, Kent | Backend Dev · Researcher |
 | Laygo, Gabriel Jireh | Backend Dev · UI/UX & Writer |

@@ -29,7 +29,7 @@ function verifyToken(req, res, next) {
 function verifyAdmin(req, res, next) {
   if (req.user.role !== 'admin') {
     return res.status(403).json({
-      error: 'Admins only.'
+      error: 'Access denied. Only administrators are authorized to perform this action.'
     });
   }
 

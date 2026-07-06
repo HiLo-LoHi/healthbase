@@ -3,13 +3,39 @@ const router  = express.Router();
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 const User    = require('../models/UserAccount');
+const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
 
-// REGISTER — disabled
-router.post('/register', (req, res) => {
-  return res.status(403).json({
-    error: 'Public registration is disabled. Resident accounts are created by the administrator.'
-  });
-});
+// REGISTER ADMIN — Only administrators can create new administrator accounts.
+router.post(
+  '/register',
+  verifyToken,
+  verifyAdmin,
+  async (req, res) => {
+    try {
+
+      const user = new User({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        username: req.body.username,
+        password: req.body.password,
+
+        role: 'admin'
+      });
+
+      await user.save();
+
+      res.json({
+        success: true,
+        message: 'Administrator account created successfully.'
+      });
+
+    } catch (err) {
+      res.status(400).json({
+        error: err.message
+      });
+    }
+  }
+);
 
 // LOGIN — returns a JWT token + role
 router.post('/login', async (req, res) => {

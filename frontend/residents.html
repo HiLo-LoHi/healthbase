@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HealthBase - Residents</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div>
+    <div class="sidebar-logo">
+      <img src="assets/logo.png" alt="logo">
+      <span>HealthBase</span>
+    </div>
+
+    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
+    <a href="residents.html" class="nav-item">👥 Residents</a>
+    <a href="health-logging.html" class="nav-item">📋 Health Logging</a>
+    <a href="appointments.html" class="nav-item">📅 Appointments</a>
+    <a href="appointments.html#requests" class="nav-item">📨 Requests</a>
+    <a href="reports.html" class="nav-item">📊 Reports</a>
+    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+  </div>
+
+  <button class="nav-item logout-link" onclick="logout()">
+    🚪 Logout
+  </button>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <span>Barangay Health System</span>
+
+  <span>
+    <button class="topbar-btn" onclick="openNotifications()">🔔</button>
+    &nbsp;
+    <button class="topbar-btn" onclick="openAccountMenu()">
+      👤 <span id="topbarName">Health Worker</span>
+    </button>
+  </span>
+</div>
+
+<!-- MAIN -->
+<div class="main-content">
+
+  <div class="page-header">
+    <h1>Residents</h1>
+    <p>Search and manage resident records</p>
+  </div>
+
+  <div class="search-filter-bar">
+    <input type="text" class="search-input" id="searchInput"
+      placeholder="Search by name..." oninput="searchResidents()">
+
+    <select class="filter-select" id="filterAge" onchange="searchResidents()">
+      <option value="">Age: All</option>
+      <option value="0-18">0-18</option>
+      <option value="19-40">19-40</option>
+      <option value="41-60">41-60</option>
+      <option value="60+">60+</option>
+    </select>
+
+    <select class="filter-select" id="filterCondition" onchange="searchResidents()">
+      <option value="">Condition / Diagnosis: All</option>
+      <option>Hypertension</option>
+      <option>Diabetes</option>
+      <option>Asthma</option>
+    </select>
+
+    <select class="filter-select" id="filterVax" onchange="searchResidents()">
+      <option value="">Vaccination: All</option>
+      <option value="true">Vaccinated</option>
+      <option value="false">Not Vaccinated</option>
+    </select>
+
+    <select class="filter-select" id="sortResidents" onchange="searchResidents()">
+      <option value="name-asc">Sort: Name A-Z</option>
+      <option value="name-desc">Sort: Name Z-A</option>
+      <option value="age-asc">Age: Youngest First</option>
+      <option value="age-desc">Age: Oldest First</option>
+    </select>
+
+    <button class="btn-secondary" onclick="resetFilters()">Reset</button>
+    <button class="btn-primary" onclick="location.href='health-logging.html#addResident'">Add Resident</button>
+  </div>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+    <span id="resultCount" style="color:var(--gray); font-size:13px;">0 residents found</span>
+  </div>
+
+  <div class="resident-list" id="residentList">
+    <p style="text-align:center; color:#aaa; padding:40px;">Loading...</p>
+  </div>
+
+  <div class="search-filter-bar" id="paginationBar" style="justify-content:center; margin-top:14px;">
+    <button class="btn-secondary" id="prevPageBtn" onclick="changePage(-1)">Previous</button>
+    <span id="pageInfo" style="color:var(--gray); font-size:13px;">Page 1</span>
+    <button class="btn-secondary" id="nextPageBtn" onclick="changePage(1)">Next</button>
+  </div>
+
+</div>
+
+
+<script src="js/data-store.js"></script>
+<script src="js/residents.js"></script>
+</body>
+</html>

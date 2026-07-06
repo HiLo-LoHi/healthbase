@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HealthBase — Health Logging</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div>
+    <div class="sidebar-logo">
+      <img src="assets/logo.png" alt="logo">
+      <span>HealthBase</span>
+    </div>
+
+    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
+    <a href="residents.html" class="nav-item">👥 Residents</a>
+    <a href="health-logging.html" class="nav-item">📋 Health Logging</a>
+    <a href="appointments.html" class="nav-item">📅 Appointments</a>
+    <a href="appointments.html#requests" class="nav-item">📨 Requests</a>
+    <a href="reports.html" class="nav-item">📊 Reports</a>
+    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+  </div>
+
+  <button class="nav-item logout-link" onclick="logout()">
+    🚪 Logout
+  </button>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <span>Barangay Health System</span>
+
+  <span>
+    <button class="topbar-btn" onclick="openNotifications()">🔔</button>
+    &nbsp;
+    <button class="topbar-btn" onclick="openAccountMenu()">
+      👤 <span id="topbarName">Health Worker</span>
+    </button>
+  </span>
+</div>
+
+<!-- MAIN -->
+<div class="main-content">
+
+  <div class="page-header">
+    <h1>Health Logging</h1>
+    <p>Add or update health records</p>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="showTab('consultation',this)">Consultation</div>
+    <div class="tab" onclick="showTab('vaccination',this)">Vaccination</div>
+    <div class="tab" onclick="showTab('medication',this)">Medication</div>
+    <div class="tab" onclick="showTab('addResident',this)">Add Resident</div>
+  </div>
+
+  <!-- CONSULTATION FORM -->
+  <div id="tab-consultation" class="card">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Resident *</label>
+        <input type="text" id="c-resident" placeholder="Search resident name...">
+      </div>
+      <div class="form-group">
+        <label>Date *</label>
+        <input type="date" id="c-date">
+      </div>
+      <div class="form-group">
+        <label>Complaint / Reason of Visit *</label>
+        <input type="text" id="c-complaint" placeholder="e.g. Fever and cough">
+      </div>
+      <div class="form-group">
+        <label>Diagnosis *</label>
+        <input type="text" id="c-diagnosis" placeholder="e.g. Upper respiratory infection">
+      </div>
+      <div class="form-group">
+        <label>Temperature (°C)</label>
+        <input type="text" id="c-temp" placeholder="e.g. 37.5">
+      </div>
+      <div class="form-group">
+        <label>Blood Pressure (mmHg)</label>
+        <input type="text" id="c-bp" placeholder="e.g. 120/80">
+      </div>
+      <div class="form-group">
+        <label>Heart Rate (bpm)</label>
+        <input type="text" id="c-hr" placeholder="e.g. 72">
+      </div>
+      <div class="form-group">
+        <label>Health Worker *</label>
+        <select id="c-worker">
+          <option value="">Select health worker</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="c-notes" rows="3" placeholder="Enter notes..."></textarea>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:8px;">
+      <button class="btn-secondary" onclick="clearTab('consultation')">Clear</button>
+      <button class="btn-primary" onclick="saveConsultation()">Save Record</button>
+    </div>
+    <div id="consultMsg"></div>
+  </div>
+
+  <!-- VACCINATION FORM -->
+  <div id="tab-vaccination" class="card" style="display:none;">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Resident *</label>
+        <input type="text" id="v-resident" placeholder="Search resident name...">
+      </div>
+      <div class="form-group">
+        <label>Date Administered *</label>
+        <input type="date" id="v-date">
+      </div>
+      <div class="form-group">
+        <label>Vaccine Type *</label>
+        <input type="text" id="v-vaccine" placeholder="e.g. Flu Vaccine, COVID-19 Booster">
+      </div>
+      <div class="form-group">
+        <label>Dose Number</label>
+        <input type="text" id="v-dose" placeholder="e.g. 1st dose, 2nd dose">
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:8px;">
+      <button class="btn-secondary" onclick="clearTab('vaccination')">Clear</button>
+      <button class="btn-primary" onclick="saveVaccination()">Save Record</button>
+    </div>
+    <div id="vacMsg"></div>
+  </div>
+
+  <!-- MEDICATION FORM -->
+  <div id="tab-medication" class="card" style="display:none;">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Resident *</label>
+        <input type="text" id="m-resident" placeholder="Search resident name...">
+      </div>
+      <div class="form-group">
+        <label>Medication Name *</label>
+        <input type="text" id="m-name" placeholder="e.g. Amlodipine 5mg">
+      </div>
+      <div class="form-group">
+        <label>Dosage *</label>
+        <input type="text" id="m-dosage" placeholder="e.g. 1 tablet once daily">
+      </div>
+      <div class="form-group">
+        <label>Prescribed Date *</label>
+        <input type="date" id="m-date">
+      </div>
+      <div class="form-group">
+        <label>Duration</label>
+        <input type="text" id="m-duration" placeholder="e.g. 7 days, 1 month">
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:8px;">
+      <button class="btn-secondary" onclick="clearTab('medication')">Clear</button>
+      <button class="btn-primary" onclick="saveMedication()">Save Record</button>
+    </div>
+    <div id="medMsg"></div>
+  </div>
+
+  <!-- ADD RESIDENT FORM -->
+  <div id="tab-addResident" class="card" style="display:none;">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>First Name *</label>
+        <input type="text" id="r-firstName" placeholder="e.g. Juan">
+      </div>
+      <div class="form-group">
+        <label>Last Name *</label>
+        <input type="text" id="r-lastName" placeholder="e.g. dela Cruz">
+      </div>
+      <div class="form-group">
+        <label>Birthdate *</label>
+        <input type="date" id="r-birthdate">
+      </div>
+      <div class="form-group">
+        <label>Sex *</label>
+        <select id="r-sex">
+          <option value="">Select sex</option>
+          <option>Male</option>
+          <option>Female</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Address *</label>
+        <input type="text" id="r-address" placeholder="e.g. Purok 2, Brgy. San Jose">
+      </div>
+      <div class="form-group">
+        <label>Contact Number</label>
+        <input type="text" id="r-contact" placeholder="e.g. 09171234567">
+      </div>
+      <div class="form-group">
+        <label>Blood Type</label>
+        <select id="r-blood">
+          <option value="">Unknown</option>
+          <option>A+</option><option>A-</option>
+          <option>B+</option><option>B-</option>
+          <option>O+</option><option>O-</option>
+          <option>AB+</option><option>AB-</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Occupation</label>
+        <input type="text" id="r-occupation" placeholder="e.g. Carpenter">
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:8px;">
+      <button class="btn-secondary" onclick="clearTab('addResident')">Clear</button>
+      <button class="btn-primary" onclick="saveResident()">Save Resident</button>
+    </div>
+    <div id="residentMsg"></div>
+  </div>
+
+</div>
+
+
+<script src="js/data-store.js"></script>
+<script src="js/forms.js"></script>
+<script>
+function showTab(name, el) {
+  document.querySelectorAll('[id^="tab-"]').forEach(tab => {
+    tab.style.display = 'none';
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+
+  document.getElementById('tab-' + name).style.display = 'block';
+
+  if (el) {
+    el.classList.add('active');
+  }
+
+  history.replaceState(null, '', 'health-logging.html#' + name);
+}
+
+function openTabFromHash() {
+  const tabName = window.location.hash.replace('#', '');
+
+  const tabIndexes = {
+    consultation: 0,
+    vaccination: 1,
+    medication: 2,
+    addResident: 3
+  };
+
+  if (!tabName || tabIndexes[tabName] === undefined) return;
+
+  const tabs = document.querySelectorAll('.tab');
+  const tab = tabs[tabIndexes[tabName]];
+
+  if (tab && document.getElementById('tab-' + tabName)) {
+    showTab(tabName, tab);
+  }
+}
+
+openTabFromHash();
+window.addEventListener('hashchange', openTabFromHash);
+</script>
+</body>
+</html>

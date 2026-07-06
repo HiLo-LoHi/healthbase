@@ -9,11 +9,11 @@ A centralized, database-driven web application for barangay health centers to ma
 
 | Name | Role |
 |------|------|
-| Tanteo, Brian | Team Lead · QA Lead · Database Lead · Frontend (Forms) |
-| Go, Danielle | Frontend Lead |
-| Castillo, Simon Miguel | Backend Lead · QA Assistant |
-| Estomaguio, Zyvoeix | Backend Dev · Database Assistant |
-| Gonzales, Kent | Backend Dev · QA Assistant |
+| Tanteo, Brian | Team Lead · QA Lead · Database Lead · Frontend (Forms) · Researcher |
+| Go, Danielle | Frontend Lead · Researcher |
+| Castillo, Simon Miguel | Backend Lead · Researcher |
+| Estomaguio, Zyvoeix | Backend Dev · Database Assistant · Researcher |
+| Gonzales, Kent | Backend Dev · Researcher |
 | Laygo, Gabriel Jireh | Backend Dev · UI/UX & Writer |
 
 ---
@@ -38,7 +38,11 @@ A centralized, database-driven web application for barangay health centers to ma
     │   ├── css/
     │   │   └── style.css
     │   ├── js/
+<<<<<<< HEAD
     │   │   ├── apps.js
+=======
+    │   │   ├── auth.js
+>>>>>>> main
     │   │   ├── dashboard.js
     │   │   ├── residents.js
     │   │   ├── profile.js 
@@ -98,7 +102,7 @@ A centralized, database-driven web application for barangay health centers to ma
 
 ## 🌐 Live App
 
-- **Backend API:** https://healthbase-api.onrender.com
+- **Backend API:** https://healthbase.onrender.com
 - **Frontend:** (add Vercel link here when deployed)
 
 ------------------------------------------------------------------------------------------------------------

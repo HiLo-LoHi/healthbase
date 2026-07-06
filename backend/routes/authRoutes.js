@@ -4,15 +4,11 @@ const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 const User    = require('../models/UserAccount');
 
-// REGISTER — creates a new user (admin or patient)
-router.post('/register', async (req, res) => {
-  try {
-    const user = new User(req.body);
-    await user.save();
-    res.json({ success: true, message: 'User created successfully' });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+// REGISTER — disabled
+router.post('/register', (req, res) => {
+  return res.status(403).json({
+    error: 'Public registration is disabled. Resident accounts are created by the administrator.'
+  });
 });
 
 // LOGIN — returns a JWT token + role
@@ -41,7 +37,8 @@ router.post('/login', async (req, res) => {
     res.json({
       token,
       role: user.role,
-      name: user.firstName + ' ' + user.lastName
+      name: user.firstName + ' ' + user.lastName,
+      residentId: user.residentId
     });
 
   } catch (err) {

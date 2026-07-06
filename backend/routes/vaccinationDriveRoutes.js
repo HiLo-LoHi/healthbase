@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const VaccinationDriveRequest = require('../models/VaccinationDriveRequest');
+const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
 
 // POST — save a new vaccination drive request
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
   try {
     const request = new VaccinationDriveRequest(req.body);
     const saved = await request.save();
@@ -24,7 +25,7 @@ router.get('/', async (req, res) => {
 });
 
 // PATCH — approve or decline a request
-router.patch('/:id/status', async (req, res) => {
+router.patch('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
   try {
     const updated = await VaccinationDriveRequest.findByIdAndUpdate(
       req.params.id,

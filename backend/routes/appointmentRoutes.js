@@ -1,8 +1,9 @@
 const express     = require('express');
 const router      = express.Router();
 const Appointment = require('../models/Appointment');
+const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
 
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, verifyAdmin, async (req, res) => {
   try {
     const appt  = new Appointment(req.body);
     const saved = await appt.save();
@@ -24,7 +25,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.patch('/:id/status', async (req, res) => {
+router.patch('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
   try {
     const updated = await Appointment.findByIdAndUpdate(
       req.params.id,

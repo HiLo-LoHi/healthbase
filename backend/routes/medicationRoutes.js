@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Medication = require('../models/Medication');
+const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
 
 // POST — save new medication
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, verifyAdmin, async (req, res) => {
     try {
         const record = new Medication(req.body);
         const saved = await record.save();

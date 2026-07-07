@@ -2,9 +2,10 @@
 const express      = require('express');
 const router       = express.Router();
 const Consultation = require('../models/Consultation');
+const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
 
 // POST — save new consultation
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, verifyAdmin, async (req, res) => {
   try {
     const record = new Consultation(req.body);
     const saved  = await record.save();

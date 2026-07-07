@@ -60,3 +60,29 @@ function openAccountMenu() {
 
   alert(`Signed in as ${name} (${role})`);
 }
+
+//for authorization
+function requireAuth(allowedRoles = []) {
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+  const residentId = localStorage.getItem('residentId');
+
+  if (!token) {
+    location.href = 'login.html';
+    return false;
+  }
+
+  if (allowedRoles.length && !allowedRoles.includes(role)) {
+    if (role === 'patient' || role === 'resident') {
+      location.href = residentId
+        ? 'resident-profile.html?id=' + encodeURIComponent(residentId)
+        : 'login.html';
+      return false;
+    }
+
+    location.href = 'dashboard.html';
+    return false;
+  }
+
+  return true;
+}

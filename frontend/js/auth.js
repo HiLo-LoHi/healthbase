@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// new: login
 async function login() {
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
@@ -42,12 +43,22 @@ async function login() {
       return;
     }
 
+    let residentId = data.residentId || data.resident?._id || data.resident || '';
+
+    if ((data.role === 'patient' || data.role === 'resident') && !residentId) {
+      residentId = await findResidentIdByName(data.name, data.token);
+    }
+
     localStorage.setItem('token', data.token);
     localStorage.setItem('role', data.role);
     localStorage.setItem('name', data.name);
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data));
+    localStorage.setItem('residentId', residentId);
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify({
+      ...data,
+      residentId
+    }));
 
-    redirectByRole(data.role);
+    redirectByRole(data.role, residentId);
   } catch (err) {
     showLoginError('Cannot connect to server. Try again.');
     console.error(err);
@@ -60,10 +71,13 @@ function redirectByRole(role, residentId) {
     return;
   }
 
-  if (role === 'patient') {
-    location.href = residentId
-      ? 'resident-profile.html?id=' + encodeURIComponent(residentId)
-      : 'resident-profile.html';
+  if (role === 'patient' || role === 'resident') {
+    if (!residentId) {
+      showLoginError('Patient account is not linked to a resident record.');
+      return;
+    }
+
+    location.href = 'resident-profile.html?id=' + encodeURIComponent(residentId);
     return;
   }
 
@@ -83,11 +97,39 @@ function clearLoginError() {
   document.getElementById('loginError').innerText = '';
 }
 
-//to preview password
+// to preview password
 function togglePasswordVisibility(button) {
   const passwordInput = document.getElementById('password');
   const isHidden = passwordInput.type === 'password';
 
   passwordInput.type = isHidden ? 'text' : 'password';
   button.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+}
+
+// helper function
+async function findResidentIdByName(name, token) {
+  if (!name) return '';
+
+  const res = await fetch(API + '/api/residents', {
+    headers: token ? { Authorization: 'Bearer ' + token } : {}
+  });
+
+  const residents = await res.json();
+
+  if (!res.ok || !Array.isArray(residents)) return '';
+
+  const searchName = normalizeName(name);
+
+  const resident = residents.find(item =>
+    normalizeName(`${item.firstName || ''} ${item.lastName || ''}`) === searchName
+  );
+
+  return resident ? resident._id || resident.id : '';
+}
+
+function normalizeName(value) {
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
 }

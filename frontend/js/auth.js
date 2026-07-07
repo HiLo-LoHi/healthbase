@@ -1,32 +1,15 @@
 const AUTH_USER_KEY = 'healthbase_current_user';
-const REMEMBERED_USERNAME_KEY = 'healthbase_remembered_username';
 
-document.addEventListener('DOMContentLoaded', () => {
-  const rememberedUsername = localStorage.getItem(REMEMBERED_USERNAME_KEY);
-
-  if (rememberedUsername) {
-    document.getElementById('username').value = rememberedUsername;
-    document.getElementById('rememberMe').checked = true;
-  }
-});
-
-// new: login
+// Logs in user through the backend auth API.
 async function login() {
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
-  const rememberMe = document.getElementById('rememberMe').checked;
 
   clearLoginError();
 
   if (!username || !password) {
     showLoginError('Please enter username and password.');
     return;
-  }
-
-  if (rememberMe) {
-    localStorage.setItem(REMEMBERED_USERNAME_KEY, username);
-  } else {
-    localStorage.removeItem(REMEMBERED_USERNAME_KEY);
   }
 
   try {
@@ -65,6 +48,7 @@ async function login() {
   }
 }
 
+// Sends users to the correct page based on their role.
 function redirectByRole(role, residentId) {
   if (role === 'admin') {
     location.href = 'dashboard.html';
@@ -84,20 +68,17 @@ function redirectByRole(role, residentId) {
   showLoginError('User role is not recognized.');
 }
 
-function forgotPassword(event) {
-  event.preventDefault();
-  showLoginError('Password recovery will be available when backend authentication is connected.');
-}
-
+// Shows login error text.
 function showLoginError(message) {
   document.getElementById('loginError').innerText = message;
 }
 
+// Clears login error text.
 function clearLoginError() {
   document.getElementById('loginError').innerText = '';
 }
 
-// to preview password
+// Toggles password visibility.
 function togglePasswordVisibility(button) {
   const passwordInput = document.getElementById('password');
   const isHidden = passwordInput.type === 'password';
@@ -106,7 +87,7 @@ function togglePasswordVisibility(button) {
   button.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
 }
 
-// helper function
+// Finds a resident ID by matching the backend login name to a resident record.
 async function findResidentIdByName(name, token) {
   if (!name) return '';
 
@@ -127,6 +108,7 @@ async function findResidentIdByName(name, token) {
   return resident ? resident._id || resident.id : '';
 }
 
+// Normalizes names for matching.
 function normalizeName(value) {
   return String(value)
     .trim()

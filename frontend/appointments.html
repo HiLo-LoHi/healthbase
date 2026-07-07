@@ -7,7 +7,7 @@
 </head>
 <body>
 
-<!-- SIDEBAR -->
+<!-- SIDEBAR: Main admin navigation. Requests are handled inside Appointments tabs. -->
 <div class="sidebar">
   <div>
     <div class="sidebar-logo">
@@ -15,49 +15,82 @@
       <span>HealthBase</span>
     </div>
 
-    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
-    <a href="residents.html" class="nav-item">👥 Residents</a>
-    <a href="health-logging.html" class="nav-item">📋 Health Logging</a>
-    <a href="appointments.html" class="nav-item">📅 Appointments</a>
-    <a href="appointments.html#requests" class="nav-item">📨 Requests</a>
-    <a href="reports.html" class="nav-item">📊 Reports</a>
-    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+<a href="dashboard.html" class="nav-item admin-only">
+  <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+</a>
+
+<a href="residents.html" class="nav-item admin-only">
+  <i data-lucide="users"></i><span>Residents</span>
+</a>
+
+<a href="health-logging.html" class="nav-item admin-only">
+  <i data-lucide="clipboard-list"></i><span>Health Logging</span>
+</a>
+
+<a href="appointments.html" class="nav-item admin-only">
+  <i data-lucide="calendar-days"></i><span>Appointments</span>
+</a>
+
+<a href="reports.html" class="nav-item admin-only">
+  <i data-lucide="bar-chart-3"></i><span>Reports</span>
+</a>
+
+<a id="myProfileLink" href="resident-profile.html" class="nav-item patient-only" style="display:none;">
+  <i data-lucide="user"></i><span>My Profile</span>
+</a>
+
+<a href="appointments.html#requests" class="nav-item patient-only" style="display:none;">
+  <i data-lucide="send"></i><span>Requests</span>
+</a>
   </div>
 
-  <button class="nav-item logout-link" onclick="logout()">
-    🚪 Logout
-  </button>
+<button class="nav-item logout-link" onclick="logout()">
+  <i data-lucide="log-out"></i><span>Logout</span>
+</button>
 </div>
+
+
 
 <!-- TOPBAR -->
 <div class="topbar">
   <span>Barangay Health System</span>
 
-  <span>
-    <button class="topbar-btn" onclick="openNotifications()">🔔</button>
-    &nbsp;
-    <button class="topbar-btn" onclick="openAccountMenu()">
-      👤 <span id="topbarName">Health Worker</span>
+  <div class="account-menu-wrap">
+    <button id="accountMenuButton" class="topbar-btn" onclick="openAccountMenu()">
+      <i data-lucide="circle-user"></i>
+      <span id="topbarName">My Account</span>
     </button>
-  </span>
-</div>
 
-<!-- MAIN -->
+    <div id="accountMenu" class="account-menu">
+      <div class="account-menu-header">
+        <strong id="accountMenuName">My Account</strong>
+        <span id="accountMenuRole">Signed in</span>
+      </div>
+
+      <button type="button" onclick="goToMyProfile()">
+        <i data-lucide="user"></i>
+        <span>View My Profile</span>
+      </button>
+    </div>
+  </div>
+</div>
+<!-- MAIN: Appointment management page content. -->
 <div class="main-content">
 
+  <!-- PAGE HEADER: Title and button for opening the appointment form. -->
   <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
     <div>
       <h1>Appointments</h1>
       <p>Manage appointments and vaccination drive requests</p>
     </div>
 
-    <button class="btn-primary" onclick="toggleAppointmentForm(true)">
-      + New Appointment
-    </button>
+<button class="btn-primary admin-only" onclick="toggleAppointmentForm(true)">
+  + New Appointment
+</button>
   </div>
 
-  <!-- NEW APPOINTMENT FORM -->
-  <div class="card" id="newAppointmentCard" style="display:none;">
+  <!-- NEW APPOINTMENT FORM: Creates a new appointment through appointments.js. -->
+  <div class="card admin-only" id="newAppointmentCard" style="display:none;">
     <h4 style="font-size:14px; font-weight:700; color:var(--navy); margin-bottom:14px;">
       New Appointment
     </h4>
@@ -65,31 +98,30 @@
     <div class="form-grid">
       <div class="form-group">
         <label>Resident *</label>
-        <input type="text" id="apptResident" placeholder="Enter resident name">
+        <input type="text" id="apptResident" placeholder="Enter resident name" required>
       </div>
 
       <div class="form-group">
         <label>Date & Time *</label>
-        <input type="datetime-local" id="apptDateTime">
+        <input type="datetime-local" id="apptDateTime" required>
       </div>
 
       <div class="form-group">
         <label>Purpose *</label>
-        <input type="text" id="apptPurpose" placeholder="e.g. Check-up, vaccination, follow-up">
+        <input type="text" id="apptPurpose" placeholder="e.g. Check-up, vaccination, follow-up" required>
       </div>
 
       <div class="form-group">
-        <label>Health Worker</label>
-        <input type="text" id="apptWorker" placeholder="Health Worker">
+        <label>Health Worker *</label>
+        <input type="text" id="apptWorker" placeholder="Enter health worker name" required>
       </div>
 
       <div class="form-group">
         <label>Status</label>
         <select id="apptStatus">
-          <option>Pending</option>
-          <option>Scheduled</option>
-          <option>Completed</option>
-          <option>Cancelled</option>
+          <option value="Scheduled" selected>Scheduled</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
         </select>
       </div>
     </div>
@@ -102,16 +134,18 @@
     <div id="apptMsg"></div>
   </div>
 
+  <!-- TABS: Switches between appointments and vaccination drive requests. -->
   <div class="tab-bar">
-    <div class="tab active" onclick="showApptTab('appointments', this)">
-      Appointments
-    </div>
-    <div class="tab" onclick="showApptTab('requests', this)">
-      Vaccination Drive Requests
-    </div>
+  <div class="tab active admin-only" onclick="showApptTab('appointments', this)">
+    Appointments
   </div>
+  <div class="tab" onclick="showApptTab('requests', this)">
+    Vaccination Drive Requests
+  </div>
+</div>
 
-  <div id="appt-appointments">
+  <!-- APPOINTMENTS TAB: Displays saved appointments from the backend. -->
+   <div id="appt-appointments" class="admin-only">
     <div class="card">
       <h4 style="font-size:14px; font-weight:700; color:var(--navy); margin-bottom:14px;">
         Upcoming Appointments
@@ -139,6 +173,7 @@
     </div>
   </div>
 
+  <!-- REQUESTS TAB: Displays vaccination drive requests from the backend. -->
   <div id="appt-requests" style="display:none;">
     <div class="card">
       <h4 style="font-size:14px; font-weight:700; color:var(--navy); margin-bottom:14px;">
@@ -168,9 +203,28 @@
 
 </div>
 
-
+<!-- SCRIPTS: Loads shared API/auth helpers first, then appointment page logic. -->
 <script src="js/data-store.js"></script>
-<script>requireAuth(['admin']);</script>
+<script>requireAuth(['admin', 'patient', 'resident']);</script>
 <script src="js/appointments.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const role = localStorage.getItem('role');
+
+  if (role === 'patient' || role === 'resident') {
+    const requestTab = document.querySelector("[onclick=\"showApptTab('requests', this)\"]");
+
+    if (requestTab && typeof showApptTab === 'function') {
+      showApptTab('requests', requestTab);
+    }
+  }
+});
+</script>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  if (window.lucide) lucide.createIcons();
+</script>
 </body>
 </html>

@@ -219,9 +219,11 @@
 
 </div>
 
-
 <script src="js/data-store.js"></script>
+<script>requireAuth(['admin']);</script>
 <script src="js/forms.js"></script>
+
+
 <script>
 function showTab(name, el) {
   document.querySelectorAll('[id^="tab-"]').forEach(tab => {

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HealthBase - Reports</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="main-content">
+    <div class="page-header">
+        <h1>Reports</h1>
+        <p>View Daily, Weekly, Monthly, and Yearly Health Reports</p>
+    </div>
+
+    <div class="card">
+
+        <div class="form-group">
+
+            <label>Select Report Type</label>
+
+            <select id="reportRange" onchange="loadReport()">
+
+                <option value="daily">Daily</option>
+
+                <option value="weekly" selected>Weekly</option>
+
+                <option value="monthly">Monthly</option>
+
+                <option value="yearly">Yearly</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <br>
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-number" id="residentCount">0</div>
+            <div class="stat-label">Residents</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">🏥</div>
+            <div class="stat-number" id="consultationCount">0</div>
+            <div class="stat-label">Consultations</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">💉</div>
+            <div class="stat-number" id="vaccinationCount">0</div>
+            <div class="stat-label">Vaccinations</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">💊</div>
+            <div class="stat-number" id="medicationCount">0</div>
+            <div class="stat-label">Medications</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-number" id="appointmentCount">0</div>
+            <div class="stat-label">Appointments</div>
+        </div>
+
+    </div>
+
+    <br>
+
+    <div class="card">
+
+        <h3 style="color:var(--navy); margin-bottom:15px;">
+            Report Summary
+        </h3>
+
+        <table class="data-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Category</th>
+
+                    <th>Total Records</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr>
+
+                    <td>Residents</td>
+
+                    <td id="residentSummary">0</td>
+
+                </tr>
+
+                <tr>
+
+                    <td>Consultations</td>
+
+                    <td id="consultationSummary">0</td>
+
+                </tr>
+
+                <tr>
+
+                    <td>Vaccinations</td>
+
+                    <td id="vaccinationSummary">0</td>
+
+                </tr>
+
+                <tr>
+
+                    <td>Medications</td>
+
+                    <td id="medicationSummary">0</td>
+
+                </tr>
+
+                <tr>
+
+                    <td>Appointments</td>
+
+                    <td id="appointmentSummary">0</td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+<script src="js/data-store.js"></script>
+<script>requireAuth(['admin']);</script>
+<script src="js/reports.js"></script>
+
+</body>
+</html>

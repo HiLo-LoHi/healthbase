@@ -2,8 +2,13 @@ const express  = require('express');
 const router   = express.Router();
 const Resident = require('../models/Resident');
 const UserAccount = require('../models/UserAccount');
-const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
+const Appointment = require('../models/Appointment');
+const Consultation = require('../models/Consultation');
+const Medication = require('../models/Medication');
+const Vaccination = require('../models/Vaccination');
+const VaccinationDriveRequest = require('../models/VaccinationDriveRequest');
 
+const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
 async function generateUsername(firstName, lastName) {
   const firstParts = firstName.trim().split(/\s+/);
 
@@ -119,6 +124,47 @@ router.get('/:id', async (req, res) => {
 
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+// DELETE — remove resident and all related records
+router.delete('/:id', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const residentId = req.params.id;
+
+    const resident = await Resident.findById(residentId);
+
+    if (!resident) {
+      return res.status(404).json({
+        success: false,
+        message: 'Resident not found.'
+      });
+    }
+
+    // Delete linked user account
+    await UserAccount.deleteOne({ residentId });
+
+    // Delete all related records
+    await Appointment.deleteMany({ residentId });
+    await Consultation.deleteMany({ residentId });
+    await Medication.deleteMany({ residentId });
+    await Vaccination.deleteMany({ residentId });
+    await VaccinationDriveRequest.deleteMany({ residentId });
+
+    // Delete resident record
+    await Resident.findByIdAndDelete(residentId);
+
+    res.json({
+      success: true,
+      message: 'Resident and all related records deleted successfully.'
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 

@@ -26,6 +26,7 @@ app.use('/api/vaccinations',  require('./routes/vaccinationRoutes'));
 app.use('/api/medications',   require('./routes/medicationRoutes'));
 app.use('/api/appointments', require('./routes/appointmentRoutes'));
 app.use('/api/vaccination-drives', require('./routes/vaccinationDriveRoutes'));
+app.use('/api/reports', require('./routes/reportRoutes'));
 
 // Test route
 app.get('/', (req, res) => {

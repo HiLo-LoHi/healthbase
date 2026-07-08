@@ -1,150 +1,438 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<title>HealthBase - Reports</title>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <title>HealthBase - Reports</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div>
+
+    <div class="sidebar-logo">
+      <img src="assets/Logo.png" alt="logo">
+      <span>HealthBase</span>
+    </div>
+
+    <a href="dashboard.html" class="nav-item admin-only">
+      <i data-lucide="layout-dashboard"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <a href="residents.html" class="nav-item admin-only">
+      <i data-lucide="users"></i>
+      <span>Residents</span>
+    </a>
+
+    <a href="health-logging.html" class="nav-item admin-only">
+      <i data-lucide="clipboard-list"></i>
+      <span>Health Logging</span>
+    </a>
+
+    <a href="appointments.html" class="nav-item admin-only">
+      <i data-lucide="calendar-days"></i>
+      <span>Appointments</span>
+    </a>
+
+    <a href="reports.html" class="nav-item admin-only active">
+      <i data-lucide="bar-chart-3"></i>
+      <span>Reports</span>
+    </a>
+
+    <a href="settings.html" class="nav-item admin-only">
+      <i data-lucide="settings"></i>
+      <span>Settings</span>
+    </a>
+
+    <a id="myProfileLink"
+       href="resident-profile.html"
+       class="nav-item patient-only"
+       style="display:none;">
+      <i data-lucide="user"></i>
+      <span>My Profile</span>
+    </a>
+
+    <a href="appointments.html#requests"
+       class="nav-item patient-only"
+       style="display:none;">
+      <i data-lucide="send"></i>
+      <span>Requests</span>
+    </a>
+
+  </div>
+
+  <button class="nav-item logout-link" onclick="logout()">
+    <i data-lucide="log-out"></i>
+    <span>Logout</span>
+  </button>
+
+</div>
+
+<!-- TOPBAR -->
+
+<div class="topbar">
+
+  <span>Barangay Health System</span>
+
+  <div class="account-menu-wrap">
+
+    <button id="accountMenuButton"
+            class="topbar-btn"
+            onclick="openAccountMenu()">
+
+      <i data-lucide="circle-user"></i>
+
+      <span id="topbarName">
+        My Account
+      </span>
+
+    </button>
+
+    <div id="accountMenu" class="account-menu">
+
+      <div class="account-menu-header">
+
+        <strong id="accountMenuName">
+          My Account
+        </strong>
+
+        <span id="accountMenuRole">
+          Signed in
+        </span>
+
+      </div>
+
+      <button onclick="goToMyProfile()">
+
+        <i data-lucide="user"></i>
+
+        <span>View My Profile</span>
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- MAIN -->
+
 <div class="main-content">
-    <div class="page-header">
-        <h1>Reports</h1>
-        <p>View Daily, Weekly, Monthly, and Yearly Health Reports</p>
-    </div>
 
-    <div class="card">
+  <div class="page-header">
 
-        <div class="form-group">
+    <h1>Reports</h1>
 
-            <label>Select Report Type</label>
+    <p>
+      Daily, Weekly, Monthly and Yearly Health Reports
+    </p>
 
-            <select id="reportRange" onchange="loadReport()">
+  </div>
 
-                <option value="daily">Daily</option>
+  <div class="card">
 
-                <option value="weekly" selected>Weekly</option>
+    <h3 style="margin-bottom:15px;">
+        Report Information
+    </h3>
 
-                <option value="monthly">Monthly</option>
+    <table class="data-table">
 
-                <option value="yearly">Yearly</option>
+        <tbody>
 
-            </select>
+            <tr>
+                <td><strong>Report Type</strong></td>
+                <td id="reportTypeDisplay">Weekly</td>
+            </tr>
 
-        </div>
+            <tr>
+                <td><strong>Generated On</strong></td>
+                <td id="generatedDate"></td>
+            </tr>
 
-    </div>
+            <tr>
+                <td><strong>Prepared By</strong></td>
+                <td id="preparedBy"></td>
+            </tr>
 
-    <br>
+        </tbody>
 
-    <div class="stats-grid">
+    </table>
 
-        <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-number" id="residentCount">0</div>
-            <div class="stat-label">Residents</div>
-        </div>
+</div>
 
-        <div class="stat-card">
-            <div class="stat-icon">🏥</div>
-            <div class="stat-number" id="consultationCount">0</div>
-            <div class="stat-label">Consultations</div>
-        </div>
+<br>
 
-        <div class="stat-card">
-            <div class="stat-icon">💉</div>
-            <div class="stat-number" id="vaccinationCount">0</div>
-            <div class="stat-label">Vaccinations</div>
-        </div>
+  <div class="card">
 
-        <div class="stat-card">
-            <div class="stat-icon">💊</div>
-            <div class="stat-number" id="medicationCount">0</div>
-            <div class="stat-label">Medications</div>
-        </div>
+    <label>
 
-        <div class="stat-card">
-            <div class="stat-icon">📅</div>
-            <div class="stat-number" id="appointmentCount">0</div>
-            <div class="stat-label">Appointments</div>
-        </div>
+      <strong>
 
-    </div>
+        Report Type
 
-    <br>
+      </strong>
 
-    <div class="card">
+    </label>
 
-        <h3 style="color:var(--navy); margin-bottom:15px;">
-            Report Summary
-        </h3>
+    <br><br>
 
-        <table class="data-table">
+    <select id="reportRange"
+            onchange="loadReport()">
 
-            <thead>
+      <option value="daily">
 
-                <tr>
+        Daily
 
-                    <th>Category</th>
+      </option>
 
-                    <th>Total Records</th>
+      <option value="weekly" selected>
 
-                </tr>
+        Weekly
 
-            </thead>
+      </option>
 
-            <tbody>
+      <option value="monthly">
 
-                <tr>
+        Monthly
 
-                    <td>Residents</td>
+      </option>
 
-                    <td id="residentSummary">0</td>
+      <option value="yearly">
 
-                </tr>
+        Yearly
 
-                <tr>
+      </option>
 
-                    <td>Consultations</td>
+    </select>
 
-                    <td id="consultationSummary">0</td>
+  </div>
 
-                </tr>
+  <br>
 
-                <tr>
+  <div class="stats-grid">
 
-                    <td>Vaccinations</td>
+    <div class="stat-card">
 
-                    <td id="vaccinationSummary">0</td>
+      <div class="stat-icon">
 
-                </tr>
+        👥
 
-                <tr>
+      </div>
 
-                    <td>Medications</td>
+      <div class="stat-number"
+           id="residentCount">
 
-                    <td id="medicationSummary">0</td>
+        0
 
-                </tr>
+      </div>
 
-                <tr>
+      <div class="stat-label">
 
-                    <td>Appointments</td>
+        Residents
 
-                    <td id="appointmentSummary">0</td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
+      </div>
 
     </div>
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        🏥
+
+      </div>
+
+      <div class="stat-number"
+           id="consultationCount">
+
+        0
+
+      </div>
+
+      <div class="stat-label">
+
+        Consultations
+
+      </div>
+
+    </div>
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        💉
+
+      </div>
+
+      <div class="stat-number"
+           id="vaccinationCount">
+
+        0
+
+      </div>
+
+      <div class="stat-label">
+
+        Vaccinations
+
+      </div>
+
+    </div>
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        💊
+
+      </div>
+
+      <div class="stat-number"
+           id="medicationCount">
+
+        0
+
+      </div>
+
+      <div class="stat-label">
+
+        Medications
+
+      </div>
+
+    </div>
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        📅
+
+      </div>
+
+      <div class="stat-number"
+           id="appointmentCount">
+
+        0
+
+      </div>
+
+      <div class="stat-label">
+
+        Appointments
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <br>
+
+  <div class="card">
+
+    <h3 style="margin-bottom:15px;">
+      Report Summary
+    </h3>
+
+    <table class="data-table">
+
+      <thead>
+
+        <tr>
+
+          <th>Category</th>
+          <th>Total Records</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        <tr>
+          <td>Residents</td>
+          <td id="residentSummary">0</td>
+        </tr>
+
+        <tr>
+          <td>Consultations</td>
+          <td id="consultationSummary">0</td>
+        </tr>
+
+        <tr>
+          <td>Vaccinations</td>
+          <td id="vaccinationSummary">0</td>
+        </tr>
+
+        <tr>
+          <td>Medications</td>
+          <td id="medicationSummary">0</td>
+        </tr>
+
+        <tr>
+          <td>Appointments</td>
+          <td id="appointmentSummary">0</td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <br>
+
+  <div class="dashboard-row">
+
+    <div class="card" style="flex:1;">
+
+      <h3 style="margin-bottom:15px;">
+        Report Distribution
+      </h3>
+
+      <canvas id="reportPieChart"></canvas>
+
+    </div>
+
+    <div class="card" style="flex:1;">
+
+      <h3 style="margin-bottom:15px;">
+        Health Records Overview
+      </h3>
+
+      <canvas id="reportBarChart"></canvas>
+
+    </div>
+
+  </div>
+
 </div>
 
 <script src="js/data-store.js"></script>
-<script>requireAuth(['admin']);</script>
+
+<script>
+requireAuth(['admin']);
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script src="js/reports.js"></script>
 
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script>
+if (window.lucide) {
+    lucide.createIcons();
+}
+</script>
+
 </body>
+
 </html>

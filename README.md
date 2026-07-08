@@ -57,7 +57,9 @@ A centralized, database-driven web application for barangay health centers to ma
     │   ├── server.js
     │   ├── .gitignore
     │   ├── package-lock.json             
-    │   ├── package.json                
+    │   ├── package.json   
+    │   ├── middleware/
+    │   │   └── authMiddleware.js
     │   ├── models/
     │   │   ├── Resident.js
     │   │   ├── Consultation.js

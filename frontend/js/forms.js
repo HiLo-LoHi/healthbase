@@ -189,13 +189,13 @@ async function saveMedication() {
   }
 
   const data = {
-    medicineName: document.getElementById('m-name').value.trim(),
+    medicationName: document.getElementById('m-name').value.trim(),
     dosage: document.getElementById('m-dosage').value.trim(),
     prescribedDate: document.getElementById('m-date').value,
     duration: duration
-  };
+};
 
-  if (!residentName || !data.medicineName || !data.dosage || !data.prescribedDate) {
+  if (!residentName || !data.medicationName || !data.dosage || !data.prescribedDate) {
     showMsg('medMsg', 'Please fill in all required fields.', 'error');
     return;
   }

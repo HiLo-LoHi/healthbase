@@ -109,10 +109,10 @@ function renderResidents(residents) {
     const vaccinated = isResidentVaccinated(resident);
 
     return `
-      <div class="resident-card" onclick="openResidentProfile('${escapeJsValue(id)}')">
+      <div class="resident-card">
         <div class="avatar">&#128100;</div>
 
-        <div class="rinfo">
+        <div class="rinfo" onclick="openResidentProfile('${escapeJsValue(id)}')" style="cursor:pointer;">
           <h4>${escapeHtml(fullName)}</h4>
           <p>
             ${escapeHtml(resident.sex || 'Sex not set')}
@@ -127,6 +127,15 @@ function renderResidents(residents) {
             </span>
             <span class="badge badge-yellow">${escapeHtml(condition)}</span>
           </p>
+        </div>
+
+        <div style="display:flex;align-items:center;">
+          <button
+            class="btn-secondary"
+            style="background:#dc3545;color:white;border:none;"
+            onclick="event.stopPropagation(); deleteResident('${escapeJsValue(id)}')">
+            Delete
+          </button>
         </div>
       </div>
     `;
@@ -220,6 +229,38 @@ function isResidentVaccinated(resident) {
 
 function escapeJsValue(value) {
   return String(value || '').replaceAll('\\', '\\\\').replaceAll("'", "\\'");
+}
+async function deleteResident(id) {
+  const confirmed = confirm(
+    'Are you sure you want to delete this resident? This action cannot be undone.'
+  );
+
+  if (!confirmed) return;
+
+  const token = localStorage.getItem('token');
+
+  try {
+    const res = await fetch(API + '/api/residents/' + id, {
+      method: 'DELETE',
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || data.message || 'Failed to delete resident.');
+    }
+
+    alert('Resident deleted successfully.');
+
+    loadResidents(document.getElementById('searchInput').value.trim());
+
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
 }
 
 function escapeHtml(value) {

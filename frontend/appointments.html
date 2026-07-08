@@ -179,6 +179,40 @@
       <h4 style="font-size:14px; font-weight:700; color:var(--navy); margin-bottom:14px;">
         Vaccination Drive Requests
       </h4>
+      <div class="card patient-only" id="vaccinationRequestForm">
+
+        <h4 style="margin-bottom:15px;">
+          Request Vaccination Drive
+        </h4>
+
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Vaccine Type</label>
+            <input type="text" id="reqVaccine" placeholder="e.g. Influenza">
+          </div>
+
+          <div class="form-group">
+            <label>Preferred Date</label>
+            <input type="date" id="reqDate">
+          </div>
+
+          <div class="form-group">
+            <label>Preferred Location</label>
+            <input type="text" id="reqLocation" placeholder="Barangay Hall">
+          </div>
+
+        </div>
+
+        <button class="btn-primary" onclick="submitVaccinationRequest()">
+          Submit Request
+        </button>
+
+        <div id="requestMsg"></div>
+
+      </div>
+
+      <br>
 
       <table class="data-table">
         <thead>

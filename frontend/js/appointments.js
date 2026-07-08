@@ -80,6 +80,14 @@ function showApptTab(name, clickedTab) {
 
   const target = document.getElementById('appt-' + name);
   if (target) target.style.display = 'block';
+  const form = document.getElementById('vaccinationRequestForm');
+
+  if (form) {
+      form.style.display =
+          isPatientUser() && name === 'requests'
+              ? 'block'
+              : 'none';
+  }
 
   if (clickedTab) clickedTab.classList.add('active');
 
@@ -549,4 +557,68 @@ function getRequestDisplayName(item) {
   );
 
   return resident ? getResidentName(resident) : 'Unknown requester';
+}
+
+async function submitVaccinationRequest() {
+
+    const residentId = localStorage.getItem('residentId');
+    const token = localStorage.getItem('token');
+
+    const vaccineType = document.getElementById('reqVaccine').value.trim();
+    const preferredDate = document.getElementById('reqDate').value;
+    const location = document.getElementById('reqLocation').value.trim();
+
+    if (!vaccineType || !preferredDate || !location) {
+
+        alert('Please complete all fields.');
+
+        return;
+
+    }
+
+    try {
+
+        const response = await fetch(
+            API + '/api/vaccination-drives',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    residentId,
+                    vaccineType,
+                    preferredDate,
+                    location
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(result.error || 'Unable to submit request.');
+
+        }
+
+        alert('Vaccination Drive Request submitted successfully.');
+
+        document.getElementById('reqVaccine').value = '';
+        document.getElementById('reqDate').value = '';
+        document.getElementById('reqLocation').value = '';
+
+        loadRequests();
+
+    }
+
+    catch (err) {
+
+        alert(err.message);
+
+        console.error(err);
+
+    }
+
 }

@@ -15,40 +15,71 @@
       <span>HealthBase</span>
     </div>
 
-    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
-    <a href="residents.html" class="nav-item">👥 Residents</a>
-    <a href="health-logging.html" class="nav-item">📋 Health Logging</a>
-    <a href="appointments.html" class="nav-item">📅 Appointments</a>
-    <a href="appointments.html#requests" class="nav-item">📨 Requests</a>
-    <a href="reports.html" class="nav-item">📊 Reports</a>
-    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+<a href="dashboard.html" class="nav-item admin-only">
+  <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+</a>
+
+<a href="residents.html" class="nav-item admin-only">
+  <i data-lucide="users"></i><span>Residents</span>
+</a>
+
+<a href="health-logging.html" class="nav-item admin-only">
+  <i data-lucide="clipboard-list"></i><span>Health Logging</span>
+</a>
+
+<a href="appointments.html" class="nav-item admin-only">
+  <i data-lucide="calendar-days"></i><span>Appointments</span>
+</a>
+
+<a href="reports.html" class="nav-item admin-only">
+  <i data-lucide="bar-chart-3"></i><span>Reports</span>
+</a>
+
+<a id="myProfileLink" href="resident-profile.html" class="nav-item patient-only" style="display:none;">
+  <i data-lucide="user"></i><span>My Profile</span>
+</a>
+
+<a href="appointments.html#requests" class="nav-item patient-only" style="display:none;">
+  <i data-lucide="send"></i><span>Requests</span>
+</a>
   </div>
 
-  <button class="nav-item logout-link" onclick="logout()">
-    🚪 Logout
-  </button>
+<button class="nav-item logout-link" onclick="logout()">
+  <i data-lucide="log-out"></i><span>Logout</span>
+</button>
 </div>
 
 <!-- TOPBAR -->
 <div class="topbar">
   <span>Barangay Health System</span>
 
-  <span>
-    <button class="topbar-btn" onclick="openNotifications()">🔔</button>
-    &nbsp;
-    <button class="topbar-btn" onclick="openAccountMenu()">
-      👤 <span id="topbarName">Health Worker</span>
+  <div class="account-menu-wrap">
+    <button id="accountMenuButton" class="topbar-btn" onclick="openAccountMenu()">
+      <i data-lucide="circle-user"></i>
+      <span id="topbarName">My Account</span>
     </button>
-  </span>
+
+    <div id="accountMenu" class="account-menu">
+      <div class="account-menu-header">
+        <strong id="accountMenuName">My Account</strong>
+        <span id="accountMenuRole">Signed in</span>
+      </div>
+
+      <button type="button" onclick="goToMyProfile()">
+        <i data-lucide="user"></i>
+        <span>View My Profile</span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- MAIN -->
 <div class="main-content">
 
-  <a href="residents.html"
-    style="font-size:13px; color:var(--green); display:inline-block; margin-bottom:16px;">
-    ← Back to Residents
-  </a>
+<a href="residents.html" class="admin-only"
+  style="font-size:13px; color:var(--green); display:inline-block; margin-bottom:16px;">
+  Back to Residents
+</a>
 
   <div class="profile-header">
     <div class="profile-avatar">👤</div>
@@ -61,7 +92,7 @@
       <p id="pBlood"></p>
     </div>
 
-    <button class="btn-secondary" onclick="editResident()">Edit</button>
+<button class="btn-secondary admin-only" onclick="editResident()">Edit</button>
   </div>
 
   <div class="tab-bar">
@@ -69,7 +100,6 @@
     <div class="tab" onclick="showProfileTab('consultations', this)">Consultations</div>
     <div class="tab" onclick="showProfileTab('vaccinations', this)">Vaccinations</div>
     <div class="tab" onclick="showProfileTab('medications', this)">Medications</div>
-    <div class="tab" onclick="showProfileTab('files', this)">Files</div>
   </div>
 
   <div id="prof-overview" class="profile-grid">
@@ -80,10 +110,6 @@
       </h4>
 
       <table style="width:100%; font-size:13px;">
-        <tr>
-          <td style="color:var(--gray);width:140px;padding:4px 0;">Civil Status</td>
-          <td id="pCivil">—</td>
-        </tr>
         <tr>
           <td style="color:var(--gray);padding:4px 0;">Occupation</td>
           <td id="pOccupation">—</td>
@@ -206,17 +232,19 @@
     </div>
   </div>
 
-  <div id="prof-files" style="display:none;">
-    <div class="card">
-      <p style="color:var(--gray); text-align:center; padding:30px;">
-        No files uploaded yet.
-      </p>
-    </div>
-  </div>
+
 
 </div>
 
 
 <script src="js/data-store.js"></script>
-<script>requireAuth(['admin', 'patient', 'resident']);</script></body>
+<script>requireAuth(['admin', 'patient', 'resident']);</script>
+<script src="js/resident-profile.js"></script>
+
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  if (window.lucide) lucide.createIcons();
+</script>
+</body>
 </html>

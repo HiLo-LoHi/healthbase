@@ -14,16 +14,16 @@
     <div class="sys-name">Barangay Health System</div>
     <div class="sys-tag">Healthier Community, Better Tomorrow</div>
 
+    <!-- Username field -->
     <div class="form-group" style="text-align:left;">
       <label>Username</label>
       <input type="text" id="username" placeholder="Enter username">
     </div>
 
-
-    
+    <!-- Password field with visibility toggle -->
     <div class="form-group" style="text-align:left;">
       <label>Password</label>
-      
+
       <div class="password-field">
         <input type="password" id="password" placeholder="Enter password">
         <button type="button" class="password-toggle" onclick="togglePasswordVisibility(this)" aria-label="Show password">
@@ -35,25 +35,12 @@
       </div>
     </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:20px;">
-      <label style="display:flex; align-items:center; gap:6px; color:var(--gray);">
-        <input type="checkbox" id="rememberMe">
-        Remember me
-      </label>
-
-      <a href="#" onclick="forgotPassword(event)" style="color:var(--green); text-decoration:none;">
-        Forgot password?
-      </a>
-    </div>
-
+    <!-- Login action -->
     <button class="btn-primary" style="width:100%; padding:13px;" onclick="login()">
       LOGIN
     </button>
 
     <div id="loginError" style="color:#e53935; font-size:12px; margin-top:10px;"></div>
-    <div id="loginHint" style="color:var(--gray); font-size:11px; margin-top:12px; line-height:1.5;">
-      Demo: admin / admin123 or patient / patient123
-    </div>
   </div>
 </div>
 

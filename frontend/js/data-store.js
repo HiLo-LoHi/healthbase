@@ -55,11 +55,22 @@ function openNotifications() {
 }
 
 function openAccountMenu() {
-  const name = localStorage.getItem('name') || 'Health Worker';
-  const role = localStorage.getItem('role') || 'admin';
+  const menu = document.getElementById('accountMenu');
+  if (!menu) return;
 
-  alert(`Signed in as ${name} (${role})`);
+  menu.classList.toggle('show');
 }
+
+document.addEventListener('click', event => {
+  const menu = document.getElementById('accountMenu');
+  const button = document.getElementById('accountMenuButton');
+
+  if (!menu || !button) return;
+
+  if (!menu.contains(event.target) && !button.contains(event.target)) {
+    menu.classList.remove('show');
+  }
+});
 
 //for authorization
 function requireAuth(allowedRoles = []) {
@@ -86,3 +97,70 @@ function requireAuth(allowedRoles = []) {
 
   return true;
 }
+
+function isPatientRole(role) {
+  return role === 'patient' || role === 'resident';
+}
+
+function applyRoleBasedUI() {
+  const role = localStorage.getItem('role');
+  const name = localStorage.getItem('name') || 'My Account';
+  const residentId = localStorage.getItem('residentId');
+
+  const topbarName = document.getElementById('topbarName');
+  if (topbarName) topbarName.innerText = name;
+
+  const accountMenuName = document.getElementById('accountMenuName');
+if (accountMenuName) accountMenuName.innerText = name;
+
+const accountMenuRole = document.getElementById('accountMenuRole');
+if (accountMenuRole) accountMenuRole.innerText = role ? 'Signed in as ' + role : 'Signed in';
+
+
+  document.querySelectorAll('.admin-only').forEach(el => {
+    if (isPatientRole(role)) el.style.display = 'none';
+  })
+
+  document.querySelectorAll('.patient-only').forEach(el => {
+    el.style.display = isPatientRole(role) ? '' : 'none';
+  });
+
+  const myProfileLink = document.getElementById('myProfileLink');
+  if (myProfileLink && residentId) {
+    myProfileLink.href = 'resident-profile.html?id=' + encodeURIComponent(residentId);
+  }
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', applyRoleBasedUI);
+} else {
+  applyRoleBasedUI();
+}
+
+//
+function goToMyProfile() {
+  const role = localStorage.getItem('role');
+  const residentId = localStorage.getItem('residentId');
+
+  if ((role === 'patient' || role === 'resident') && residentId) {
+    location.href = 'resident-profile.html?id=' + encodeURIComponent(residentId);
+    return;
+  }
+
+  alert('Profile shortcut is only available for linked resident accounts.');
+}
+
+document.addEventListener('click', event => {
+  const menu = document.getElementById('accountMenu');
+  const button = document.getElementById('accountMenuButton');
+
+  if (!menu || !button) return;
+
+  if (!menu.contains(event.target) && !button.contains(event.target)) {
+    menu.classList.remove('show');
+  }
+});

@@ -1,9 +1,6 @@
-document.addEventListener('DOMContentLoaded', loadResidentProfile);
-
 let currentResident = null;
 
-
-//resident-profile : connected to API
+// Loads resident info first, then optional health records.
 async function loadResidentProfile() {
   const residentId = getQueryParam('id');
 
@@ -14,17 +11,18 @@ async function loadResidentProfile() {
   }
 
   try {
-    const [resident, consultations, vaccinations, medications] = await Promise.all([
-      apiGet('/api/residents/' + encodeURIComponent(residentId)),
-      apiGet('/api/consultations?residentId=' + encodeURIComponent(residentId)),
-      apiGet('/api/vaccinations?residentId=' + encodeURIComponent(residentId)),
-      apiGet('/api/medications?residentId=' + encodeURIComponent(residentId))
-    ]);
-
-    currentResident = resident;
+    const residentResult = await apiGet('/api/residents/' + encodeURIComponent(residentId));
+    currentResident = unwrapApiData(residentResult, 'resident');
 
     renderProfileHeader(currentResident);
     renderPersonalInfo(currentResident);
+
+    const [consultations, vaccinations, medications] = await Promise.all([
+      safeApiGet('/api/consultations?residentId=' + encodeURIComponent(residentId), []),
+      safeApiGet('/api/vaccinations?residentId=' + encodeURIComponent(residentId), []),
+      safeApiGet('/api/medications?residentId=' + encodeURIComponent(residentId), [])
+    ]);
+
     renderMedicalSummary(currentResident, consultations);
     renderRecentConsultations(consultations);
     renderRecentVaccinations(vaccinations);
@@ -38,34 +36,45 @@ async function loadResidentProfile() {
   }
 }
 
+// Handles either direct data or wrapped backend response.
+function unwrapApiData(data, key) {
+  if (data && data[key]) return data[key];
+  return data;
+}
+
+// Renders the main resident header area.
 function renderProfileHeader(resident) {
-  const fullName = getResidentName(resident);
+  const fullName = getResidentFullName(resident);
   const age = getAge(resident.birthdate);
+  const meta = [
+    resident.sex,
+    age !== null ? age + ' years old' : null,
+    resident.bloodType
+  ].filter(Boolean).join(' | ');
 
-  document.getElementById('pName').innerText = fullName;
-  document.getElementById('pMeta').innerText = [
-    age !== null ? `${age} years old` : 'Age not set',
-    resident.sex || 'Sex not set'
-  ].join(' • ');
-
-  document.getElementById('pContact').innerText =
-    resident.contact ? `Contact: ${resident.contact}` : 'Contact: —';
-
-  document.getElementById('pAddress').innerText =
-    resident.address ? `Address: ${resident.address}` : 'Address: —';
-
-  document.getElementById('pBlood').innerText =
-    resident.bloodType ? `Blood Type: ${resident.bloodType}` : 'Blood Type: Unknown';
+  setText('pName', fullName);
+  setText('pMeta', meta || '--');
+  setText('pContact', resident.contact || '--');
+  setText('pAddress', resident.address || '--');
 }
 
+// Renders personal information fields if those IDs exist in HTML.
 function renderPersonalInfo(resident) {
-  document.getElementById('pCivil').innerText = resident.civilStatus || '—';
-  document.getElementById('pOccupation').innerText = resident.occupation || '—';
-  document.getElementById('pHealthId').innerText = resident.healthId || resident.id || '—';
-}
+  const healthId = resident.healthNo || resident.healthId || resident._id || resident.id || '--';
 
+  setText('pName', getResidentFullName(resident));
+  setText('pBirthdate', formatDate(resident.birthdate));
+  setText('pSex', resident.sex || '--');
+  setText('pContact', resident.contact || '--');
+  setText('pAddress', resident.address || '--');
+  setText('pBlood', resident.bloodType || '--');
+  setText('pBloodType', resident.bloodType || '--');
+  setText('pOccupation', resident.occupation || '--');
+  setText('pHealthId', healthId);
+}
+// Renders allergies and conditions summary.
 function renderMedicalSummary(resident, consultations) {
-  document.getElementById('pAllergies').innerText = resident.allergies || 'None';
+  setText('pAllergies', resident.allergies || 'None');
 
   const conditions = consultations
     .map(item => item.diagnosis)
@@ -73,12 +82,17 @@ function renderMedicalSummary(resident, consultations) {
 
   const uniqueConditions = [...new Set(conditions)];
 
-  document.getElementById('pConditions').innerText =
-    uniqueConditions.length ? uniqueConditions.join(', ') : 'None';
+  setText(
+    'pConditions',
+    uniqueConditions.length ? uniqueConditions.join(', ') : 'None'
+  );
 }
 
+// Renders latest 3 consultations.
 function renderRecentConsultations(consultations) {
   const body = document.getElementById('recentConsult');
+  if (!body) return;
+
   const recent = consultations.slice(0, 3);
 
   if (recent.length === 0) {
@@ -95,9 +109,11 @@ function renderRecentConsultations(consultations) {
   `).join('');
 }
 
-//edited
+// Renders latest 3 vaccinations.
 function renderRecentVaccinations(vaccinations) {
   const body = document.getElementById('recentVax');
+  if (!body) return;
+
   const recent = vaccinations.slice(0, 3);
 
   if (recent.length === 0) {
@@ -108,13 +124,15 @@ function renderRecentVaccinations(vaccinations) {
   body.innerHTML = recent.map(item => `
     <tr>
       <td>${escapeHtml(item.vaccineType || item.vaccine || '-')}</td>
-<td>${escapeHtml(formatDate(item.dateAdministered || item.date || item.createdAt))}</td>
+      <td>${escapeHtml(formatDate(item.dateAdministered || item.date || item.createdAt))}</td>
     </tr>
   `).join('');
 }
-//edited 
+
+// Renders full consultation history.
 function renderAllConsultations(consultations) {
   const body = document.getElementById('allConsult');
+  if (!body) return;
 
   if (consultations.length === 0) {
     body.innerHTML = emptyRow(4, 'No consultations yet.');
@@ -122,17 +140,19 @@ function renderAllConsultations(consultations) {
   }
 
   body.innerHTML = consultations.map(item => `
-  <tr>
-    <td>${escapeHtml(formatDate(item.visitDate || item.date || item.createdAt))}</td>
-    <td>${escapeHtml(item.complaint || '-')}</td>
-    <td>${escapeHtml(item.diagnosis || '-')}</td>
-    <td>${escapeHtml(item.worker || 'Health Worker')}</td>
-  </tr>
-`).join('');
+    <tr>
+      <td>${escapeHtml(formatDate(item.visitDate || item.date || item.createdAt))}</td>
+      <td>${escapeHtml(item.complaint || '-')}</td>
+      <td>${escapeHtml(item.diagnosis || '-')}</td>
+      <td>${escapeHtml(item.worker || 'Health Worker')}</td>
+    </tr>
+  `).join('');
 }
 
+// Renders full vaccination history.
 function renderAllVaccinations(vaccinations) {
   const body = document.getElementById('allVax');
+  if (!body) return;
 
   if (vaccinations.length === 0) {
     body.innerHTML = emptyRow(3, 'No vaccinations yet.');
@@ -148,8 +168,10 @@ function renderAllVaccinations(vaccinations) {
   `).join('');
 }
 
+// Renders full medication history.
 function renderAllMedications(medications) {
   const body = document.getElementById('allMeds');
+  if (!body) return;
 
   if (medications.length === 0) {
     body.innerHTML = emptyRow(4, 'No medications yet.');
@@ -166,10 +188,9 @@ function renderAllMedications(medications) {
   `).join('');
 }
 
-//getresidentRecords(): removed...
-
+// Switches between profile tabs.
 function showProfileTab(name, clickedTab) {
-  ['overview', 'consultations', 'vaccinations', 'medications', 'files'].forEach(tabName => {
+  ['overview', 'consultations', 'vaccinations', 'medications'].forEach(tabName => {
     const section = document.getElementById('prof-' + tabName);
     if (section) section.style.display = 'none';
   });
@@ -179,45 +200,46 @@ function showProfileTab(name, clickedTab) {
   });
 
   const target = document.getElementById('prof-' + name);
+  if (target) target.style.display = name === 'overview' ? 'grid' : 'block';
 
-  if (target) {
-    target.style.display = name === 'overview' ? 'grid' : 'block';
-  }
-
-  clickedTab.classList.add('active');
+  if (clickedTab) clickedTab.classList.add('active');
 }
 
+// Placeholder for future edit feature.
 function editResident() {
   alert('Editing resident details will be connected when the backend is ready.');
 }
 
+// Shows profile-level error message.
 function showProfileError(message) {
-  document.getElementById('pName').innerText = message;
-  document.getElementById('pMeta').innerText = '';
-  document.getElementById('pContact').innerText = '';
-  document.getElementById('pAddress').innerText = '';
-  document.getElementById('pBlood').innerText = '';
+  setText('pName', message);
+  setText('pMeta', '');
+  setText('pContact', '');
+  setText('pAddress', '');
+  setText('pBlood', '');
 }
 
+// Clears table sections safely.
 function clearProfileTables() {
-  document.getElementById('recentConsult').innerHTML = emptyRow(3, 'No consultations available.');
-  document.getElementById('recentVax').innerHTML = emptyRow(2, 'No vaccinations available.');
-  document.getElementById('allConsult').innerHTML = emptyRow(4, 'No consultations available.');
-  document.getElementById('allVax').innerHTML = emptyRow(3, 'No vaccinations available.');
-  document.getElementById('allMeds').innerHTML = emptyRow(4, 'No medications available.');
+  setTableHtml('recentConsult', emptyRow(3, 'No consultations available.'));
+  setTableHtml('recentVax', emptyRow(2, 'No vaccinations available.'));
+  setTableHtml('allConsult', emptyRow(4, 'No consultations available.'));
+  setTableHtml('allVax', emptyRow(3, 'No vaccinations available.'));
+  setTableHtml('allMeds', emptyRow(4, 'No medications available.'));
 }
 
+// Reads query string values like ?id=...
 function getQueryParam(name) {
   const params = new URLSearchParams(window.location.search);
   return params.get(name);
 }
 
-function getResidentName(resident) {
-  if (resident.fullName) return resident.fullName;
-
-  return `${resident.firstName || ''} ${resident.lastName || ''}`.trim() || 'Unnamed Resident';
+// Builds resident full name.
+function getResidentFullName(resident) {
+  return `${resident.firstName || ''} ${resident.lastName || ''}`.trim() || '--';
 }
 
+// Calculates age from birthdate.
 function getAge(birthdate) {
   if (!birthdate) return null;
 
@@ -234,11 +256,11 @@ function getAge(birthdate) {
   return age;
 }
 
+// Formats date for display.
 function formatDate(dateValue) {
   if (!dateValue) return '-';
 
   const date = new Date(dateValue);
-
   if (Number.isNaN(date.getTime())) return dateValue;
 
   return date.toLocaleDateString('en-US', {
@@ -248,6 +270,7 @@ function formatDate(dateValue) {
   });
 }
 
+// Creates an empty table row.
 function emptyRow(colspan, message) {
   return `
     <tr>
@@ -258,6 +281,7 @@ function emptyRow(colspan, message) {
   `;
 }
 
+// Prevents unsafe HTML injection.
 function escapeHtml(value) {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -266,8 +290,13 @@ function escapeHtml(value) {
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
 }
-//helper function 
+
+// Fetches JSON from backend API.
 async function apiGet(path) {
+  if (typeof API === 'undefined') {
+    throw new Error('API URL is not loaded. Make sure data-store.js loads before resident-profile.js.');
+  }
+
   const token = localStorage.getItem('token');
 
   const res = await fetch(API + path, {
@@ -281,4 +310,33 @@ async function apiGet(path) {
   }
 
   return data;
+}
+
+// Fetches optional data without breaking the profile page.
+async function safeApiGet(path, fallback) {
+  try {
+    return await apiGet(path);
+  } catch (err) {
+    console.warn('Optional profile data failed:', path, err);
+    return fallback;
+  }
+}
+
+// Safely updates text if the element exists.
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = value || '--';
+}
+
+// Safely updates table HTML if the element exists.
+function setTableHtml(id, html) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = html;
+}
+
+// Starts profile loading whether script loads before or after DOM is ready.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadResidentProfile);
+} else {
+  loadResidentProfile();
 }

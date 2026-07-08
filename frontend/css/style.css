@@ -644,3 +644,108 @@ button:disabled {
   stroke: currentColor;
   stroke-width: 2;
 }
+
+.duration-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.duration-number {
+  max-width: 90px;
+}
+
+.duration-unit {
+  min-width: 130px;
+  flex: 1;
+}
+.sidebar-logo span {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.topbar > span:first-child {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-item [data-lucide],
+.topbar-btn [data-lucide] {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+
+.account-menu-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.account-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 220px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+  border-radius: 8px;
+  padding: 8px;
+  display: none;
+  z-index: 50;
+}
+
+.account-menu.show {
+  display: block;
+}
+
+.account-menu-header {
+  padding: 10px 10px 8px;
+  border-bottom: 1px solid #edf0f2;
+  margin-bottom: 6px;
+}
+
+.account-menu-header strong {
+  display: block;
+  color: var(--navy);
+  font-size: 13px;
+}
+
+.account-menu-header span {
+  display: block;
+  color: var(--gray);
+  font-size: 12px;
+  margin-top: 2px;
+  text-transform: capitalize;
+}
+
+.account-menu button {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.account-menu button:hover {
+  background: #f4f7f5;
+  color: var(--green);
+}
+
+.account-menu button [data-lucide] {
+  width: 16px;
+  height: 16px;
+}

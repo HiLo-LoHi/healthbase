@@ -1,17 +1,26 @@
 let currentAppointments = [];
 let currentRequests = [];
 let currentResidents = [];
-document.addEventListener('DOMContentLoaded', () => {
-  loadAppointmentsPage();
 
-  if (window.location.hash === '#requests') {
-    const requestsTab = document.querySelectorAll('.tab')[1];
-    showApptTab('requests', requestsTab);
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadAppointmentsPage();
+
+  if (isPatientUser() || window.location.hash === '#requests') {
+    const requestsTab = document.querySelector("[onclick=\"showApptTab('requests', this)\"]") || document.querySelectorAll('.tab')[1];
+
+    if (requestsTab) {
+      showApptTab('requests', requestsTab);
+    }
   }
 });
 
 async function loadAppointmentsPage() {
   await loadResidentsForAppointments();
+
+  if (isPatientUser()) {
+    await loadRequests();
+    return;
+  }
 
   await Promise.all([
     loadAppointments(),
@@ -19,7 +28,6 @@ async function loadAppointmentsPage() {
   ]);
 }
 
-//new
 async function loadResidentsForAppointments() {
   try {
     const res = await fetch(API + '/api/residents', {
@@ -39,11 +47,8 @@ async function loadResidentsForAppointments() {
   }
 }
 
-
-
 function getAuthHeaders(includeJson = false) {
   const token = localStorage.getItem('token');
-
   const headers = token ? { Authorization: 'Bearer ' + token } : {};
 
   if (includeJson) {
@@ -53,16 +58,30 @@ function getAuthHeaders(includeJson = false) {
   return headers;
 }
 
+function isAdminUser() {
+  return localStorage.getItem('role') === 'admin';
+}
+
+function isPatientUser() {
+  const role = localStorage.getItem('role');
+  return role === 'patient' || role === 'resident';
+}
+
 function showApptTab(name, clickedTab) {
-  document.getElementById('appt-appointments').style.display = 'none';
-  document.getElementById('appt-requests').style.display = 'none';
+  const appointmentsSection = document.getElementById('appt-appointments');
+  const requestsSection = document.getElementById('appt-requests');
+
+  if (appointmentsSection) appointmentsSection.style.display = 'none';
+  if (requestsSection) requestsSection.style.display = 'none';
 
   document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.remove('active');
   });
 
-  document.getElementById('appt-' + name).style.display = 'block';
-  clickedTab.classList.add('active');
+  const target = document.getElementById('appt-' + name);
+  if (target) target.style.display = 'block';
+
+  if (clickedTab) clickedTab.classList.add('active');
 
   if (name === 'requests') {
     history.replaceState(null, '', 'appointments.html#requests');
@@ -72,7 +91,11 @@ function showApptTab(name, clickedTab) {
 }
 
 function toggleAppointmentForm(show) {
+  if (!isAdminUser()) return;
+
   const form = document.getElementById('newAppointmentCard');
+  if (!form) return;
+
   form.style.display = show ? 'block' : 'none';
 
   if (!show) {
@@ -80,9 +103,13 @@ function toggleAppointmentForm(show) {
     clearMessage('apptMsg');
   }
 }
-//SAVE APPOINMENTSZ
-// SAVE APPOINTMENTS
+
 async function saveAppointment() {
+  if (!isAdminUser()) {
+    showMessage('apptMsg', 'Only admin users can create appointments.', 'error');
+    return;
+  }
+
   const dateTimeValue = document.getElementById('apptDateTime').value;
   const dateParts = splitDateTime(dateTimeValue);
   const residentName = document.getElementById('apptResident').value.trim();
@@ -92,11 +119,11 @@ async function saveAppointment() {
     date: dateParts.date,
     time: dateParts.time,
     purpose: document.getElementById('apptPurpose').value.trim(),
-    worker: document.getElementById('apptWorker').value.trim() || getTopbarName(),
-    status: document.getElementById('apptStatus').value
+    worker: document.getElementById('apptWorker').value.trim(),
+    status: document.getElementById('apptStatus').value || 'Scheduled'
   };
 
-  if (!residentName || !data.dateTime || !data.purpose) {
+  if (!residentName || !data.dateTime || !data.purpose || !data.worker) {
     showMessage('apptMsg', 'Please fill in all required fields.', 'error');
     return;
   }
@@ -137,7 +164,7 @@ async function saveAppointment() {
     console.error(err);
   }
 }
-//load APPOINTMENTS
+
 async function loadAppointments() {
   try {
     const res = await fetch(API + '/api/appointments', {
@@ -170,6 +197,7 @@ function renderAppointments() {
   }
 
   const body = document.getElementById('apptList');
+  if (!body) return;
 
   body.innerHTML = appointments.map(item => {
     const id = item._id || item.id;
@@ -180,18 +208,26 @@ function renderAppointments() {
         <td>${escapeHtml(getResidentDisplayName(item))}</td>
         <td>${escapeHtml(item.purpose || '-')}</td>
         <td>${escapeHtml(item.worker || 'Health Worker')}</td>
-        <td>${renderStatusBadge(item.status || 'Pending')}</td>
-        <td>
-          <button class="btn-action btn-approve" onclick="updateAppointmentStatus('${escapeJsValue(id)}', 'Completed')">
-            Complete
-          </button>
-          <button class="btn-action btn-decline" onclick="updateAppointmentStatus('${escapeJsValue(id)}', 'Cancelled')">
-            Cancel
-          </button>
-        </td>
+        <td>${renderStatusBadge(item.status || 'Scheduled')}</td>
+        <td>${renderAppointmentActions(id)}</td>
       </tr>
     `;
   }).join('');
+}
+
+function renderAppointmentActions(id) {
+  if (!isAdminUser()) {
+    return '<span style="color:var(--gray); font-size:12px;">--</span>';
+  }
+
+  return `
+    <button class="btn-action btn-approve" onclick="updateAppointmentStatus('${escapeJsValue(id)}', 'Completed')">
+      Complete
+    </button>
+    <button class="btn-action btn-decline" onclick="updateAppointmentStatus('${escapeJsValue(id)}', 'Cancelled')">
+      Cancel
+    </button>
+  `;
 }
 
 async function loadRequests() {
@@ -226,6 +262,7 @@ function renderRequests() {
   }
 
   const body = document.getElementById('requestsList');
+  if (!body) return;
 
   body.innerHTML = requests.map(item => {
     const id = item._id || item.id;
@@ -243,6 +280,10 @@ function renderRequests() {
 }
 
 function renderRequestActions(id, status) {
+  if (!isAdminUser()) {
+    return '<span style="color:var(--gray); font-size:12px;">--</span>';
+  }
+
   const normalizedStatus = status || 'Pending';
 
   if (normalizedStatus !== 'Pending') {
@@ -260,6 +301,11 @@ function renderRequestActions(id, status) {
 }
 
 async function updateAppointmentStatus(id, status) {
+  if (!isAdminUser()) {
+    alert('Only admin users can update appointments.');
+    return;
+  }
+
   try {
     const res = await fetch(API + '/api/appointments/' + encodeURIComponent(id) + '/status', {
       method: 'PATCH',
@@ -281,6 +327,11 @@ async function updateAppointmentStatus(id, status) {
 }
 
 async function updateRequestStatus(id, status) {
+  if (!isAdminUser()) {
+    alert('Only admin users can update requests.');
+    return;
+  }
+
   try {
     const res = await fetch(API + '/api/vaccination-drives/' + encodeURIComponent(id) + '/status', {
       method: 'PATCH',
@@ -306,7 +357,9 @@ function clearAppointmentForm() {
   document.getElementById('apptDateTime').value = '';
   document.getElementById('apptPurpose').value = '';
   document.getElementById('apptWorker').value = '';
-  document.getElementById('apptStatus').value = 'Pending';
+
+  const status = document.getElementById('apptStatus');
+  if (status) status.value = 'Scheduled';
 }
 
 function splitDateTime(dateTimeValue) {
@@ -358,7 +411,12 @@ function renderStatusBadge(status) {
   const normalizedStatus = status || 'Pending';
   let badgeClass = 'badge-gray';
 
-  if (normalizedStatus === 'Approved' || normalizedStatus === 'Confirmed' || normalizedStatus === 'Completed') {
+  if (
+    normalizedStatus === 'Approved' ||
+    normalizedStatus === 'Confirmed' ||
+    normalizedStatus === 'Completed' ||
+    normalizedStatus === 'Scheduled'
+  ) {
     badgeClass = 'badge-green';
   }
 
@@ -374,7 +432,10 @@ function renderStatusBadge(status) {
 }
 
 function renderTableMessage(bodyId, colspan, message) {
-  document.getElementById(bodyId).innerHTML = `
+  const body = document.getElementById(bodyId);
+  if (!body) return;
+
+  body.innerHTML = `
     <tr>
       <td colspan="${colspan}" style="text-align:center;color:#aaa;padding:30px;">
         ${escapeHtml(message)}
@@ -385,6 +446,7 @@ function renderTableMessage(bodyId, colspan, message) {
 
 function showMessage(id, message, type) {
   const el = document.getElementById(id);
+  if (!el) return;
 
   el.className = 'form-message ' + type;
   el.innerText = message;
@@ -392,6 +454,7 @@ function showMessage(id, message, type) {
 
 function clearMessage(id) {
   const el = document.getElementById(id);
+  if (!el) return;
 
   el.className = '';
   el.innerText = '';
@@ -414,9 +477,6 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
-
-
-//helper funtion
 async function findResidentByName(name) {
   const res = await fetch(API + '/api/residents', {
     headers: getAuthHeaders()
@@ -444,9 +504,11 @@ function normalizeName(value) {
     .replace(/\s+/g, ' ');
 }
 
-
-//helper function to display name not 'unknown' for AppointmentsxResidents
 function getResidentDisplayName(item) {
+  if (item.resident && typeof item.resident === 'object') {
+    return getResidentName(item.resident);
+  }
+
   if (item.resident) return item.resident;
   if (item.residentName) return item.residentName;
 
@@ -461,15 +523,18 @@ function getResidentDisplayName(item) {
   return resident ? getResidentName(resident) : 'Unknown resident';
 }
 
-//helper function:for formatting of resident name
 function getResidentName(resident) {
   return `${resident.firstName || ''} ${resident.lastName || ''}`.trim() || 'Unknown resident';
 }
 
-//helper function to display name not 'unknown' for Residentx Vaccine Request
 function getRequestDisplayName(item) {
   if (item.requester) return item.requester;
   if (item.residentName) return item.residentName;
+
+  if (item.resident && typeof item.resident === 'object') {
+    return getResidentName(item.resident);
+  }
+
   if (item.resident) return item.resident;
   if (item.firstName || item.lastName) return getResidentName(item);
 

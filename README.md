@@ -52,6 +52,7 @@ A centralized, database-driven web application for barangay health centers to ma
     │   ├── resident-profile.html
     │   ├── health-logging.html 
     │   ├── appointments.html 
+    │   ├── reports.html
     │   └── vercel.json
     ├── backend/
     │   ├── server.js
@@ -69,12 +70,13 @@ A centralized, database-driven web application for barangay health centers to ma
     │   │   ├── VaccinationDriveRequest.js
     │   │   └── UserAccount.js
     │   └── routes/
-    │       └── residentRoutes.js
-    │       └── appointmentRoutes.js
-    │       └── authRoutes.js
-    │       └── consultationRoutes.js
-    │       └── medicationRoutes.js
-    │       └── vaccinationDriveRoutes.js
+    │       ├── appointmentRoutes.js
+    │       ├── authRoutes.js
+    │       ├── consultationRoutes.js
+    │       ├── medicationRoutes.js
+    │       ├── reportRoutes.js
+    │       ├── residentRoutes.js
+    │       ├── vaccinationDriveRoutes.js
     │       └── vaccinationRoutes.js
     ├── .gitignore
     └── README.md
